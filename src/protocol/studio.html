@@ -1,0 +1,2428 @@
+gi<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>MCPForge Assistant Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>
+    /* CSS RESET & TOKENS */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root, [data-theme="dark"] {
+      color-scheme: dark;
+      scrollbar-color: #2a2d34 transparent;
+      --chat-pad: 16px;
+      --bg: #0b0c0f;
+      --panel: #14161b;
+      --box-bg: rgba(11, 12, 15, 0.55);
+      --card-chat-bg: rgba(11, 12, 15, 0.55);
+      --border: #2a2d34;
+      --line: rgba(255, 255, 255, 0.14);
+      --line-strong: rgba(255, 255, 255, 0.26);
+      --txt: #e7e9ee;
+      --text: #e7e9ee;
+      --dim: #5b616c;
+      --st: #2a2d34;
+      --street: #2a2d34;
+      --riv: #1b2431;
+      --water: #1b2431;
+      --y: #facc15;
+      --route: #facc15;
+      --card: rgba(255, 255, 255, 0.04);
+      --cardDone: rgba(250, 204, 21, 0.12);
+      --input-bg: rgba(11, 12, 15, 0.7);
+      --route-contrast-text: #0b0c0f;
+      --primary: #1d8fe6;
+      --primary-hover: #1570b7;
+      --btn-bg: #1d8fe6;
+      --btn-text: #ffffff;
+      --btn-hover: #3aa0f0;
+      --btn-active: #1570b7;
+      --btn-disabled-bg: rgba(29, 143, 230, 0.5);
+      --btn-disabled-text: rgba(255, 255, 255, 0.6);
+      --btn-focus-ring: 2px solid var(--y);
+      --btn-sec-bg: var(--box-bg);
+      --btn-sec-text: var(--txt);
+      --btn-sec-border: var(--line);
+      --btn-sec-hover-border: var(--line-strong);
+      --chip-active-bg: rgba(250, 204, 21, 0.15);
+      --chip-active-border: var(--line-strong);
+      --chip-active-text: var(--y);
+      --tag-active-bg: var(--read-green-bg);
+      --tag-active-text: var(--read-green);
+      --tag-active-border: var(--line);
+      --read-green: #34d399;
+      --read-green-bg: rgba(52, 211, 153, 0.15);
+      --write-amber: #fbbf24;
+      --write-amber-bg: rgba(251, 191, 36, 0.15);
+      --danger: #f87171;
+      --text-shadow: 0 1px 6px #0b0c0f;
+    }
+
+    [data-theme="light"] {
+      color-scheme: light;
+      scrollbar-color: #cbd5e1 transparent;
+      --chat-pad: 16px;
+      --bg: #e9eef4;
+      --panel: #ffffff;
+      --box-bg: rgba(248, 250, 252, 0.65);
+      --card-chat-bg: rgba(248, 250, 252, 0.85);
+      --border: #e2e8f0;
+      --line: rgba(15, 23, 42, 0.16);
+      --line-strong: rgba(15, 23, 42, 0.28);
+      --txt: #0f172a;
+      --text: #0f172a;
+      --dim: #5b6472; /* At least #5b6472 */
+      --st: #cbd5e1;
+      --street: #cbd5e1;
+      --riv: #93c5fd;
+      --water: #93c5fd;
+      --y: #1e3a8a;
+      --route: #1e3a8a;
+      --card: rgba(0, 0, 0, 0.04);
+      --cardDone: rgba(30, 58, 138, 0.1);
+      --input-bg: rgba(255, 255, 255, 0.9);
+      --route-contrast-text: #ffffff;
+      --primary: #facc15;
+      --primary-hover: #eab308;
+      --btn-bg: #facc15; /* Yellow */
+      --btn-text: #111827; /* Dark text, never white on yellow */
+      --btn-hover: #eab308;
+      --btn-active: #ca9a04;
+      --btn-disabled-bg: rgba(253, 230, 138, 0.6);
+      --btn-disabled-text: #6b7280;
+      --btn-focus-ring: 2px solid #1e3a8a; /* Dark navy focus ring on yellow */
+      --btn-sec-bg: transparent;
+      --btn-sec-text: #0f172a;
+      --btn-sec-border: var(--line);
+      --btn-sec-hover-border: #eab308;
+      --chip-active-bg: rgba(250, 204, 21, 0.25);
+      --chip-active-border: #eab308;
+      --chip-active-text: #0f172a;
+      --tag-active-bg: rgba(250, 204, 21, 0.25);
+      --tag-active-text: #854d0e;
+      --tag-active-border: #eab308;
+      --read-green: #059669;
+      --read-green-bg: rgba(5, 150, 105, 0.15);
+      --write-amber: #d97706;
+      --write-amber-bg: rgba(217, 119, 6, 0.15);
+      --danger: #dc2626;
+      --text-shadow: 0 1px 6px rgba(255, 255, 255, 0.7);
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden; /* ZERO PAGE SCROLL */
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html { background: transparent; }
+    body {
+      background: var(--bg);
+      color: var(--txt);
+    }
+
+    /* ACCESSIBILITY FOCUS RING */
+    *:focus-visible {
+      outline: 2px solid var(--y);
+      outline-offset: 2px;
+    }
+
+    /* SCROLLBARS */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2d34; border-radius: 4px; }
+    [data-theme="light"] ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+
+    /* FULL-SCREEN MAP BACKGROUND */
+    #mapSvgWrap {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: auto;
+      background: transparent;
+    }
+    #svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: hidden;
+    }
+
+    /* SVG MAP ELEMENTS */
+    .st { stroke: var(--st); stroke-width: 1.2; fill: none; opacity: 0.7; }
+    .riv { stroke: var(--riv); stroke-width: 24; fill: none; stroke-linecap: round; opacity: 0.65; }
+    .lbl { fill: var(--dim); font-size: 9.5px; letter-spacing: 2px; font-weight: 700; opacity: 0.45; text-anchor: middle; font-family: ui-monospace, monospace; }
+    .base { stroke: #3a3f4d; stroke-width: 2.2; stroke-dasharray: 4 4; fill: none; opacity: 0.6; }
+    [data-theme="light"] .base { stroke: #94a3b8; }
+    .seg { stroke: var(--y); stroke-width: 3.5; stroke-linecap: round; fill: none; filter: drop-shadow(0 0 4px var(--y)); transition: stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1); }
+    .node { fill: var(--bg); stroke: #4a5060; stroke-width: 2; cursor: pointer; transition: all 0.3s; }
+    .node.active { stroke: var(--y); stroke-width: 3.5; fill: var(--bg); }
+    .node.done { fill: var(--y); stroke: var(--y); stroke-width: 2; }
+    .node.stale { stroke: var(--write-amber); fill: var(--bg); }
+    .ring { fill: none; stroke: var(--y); stroke-width: 1.5; opacity: 0; transform-origin: center; }
+    .ring.on { animation: rip 1.8s infinite cubic-bezier(0,0,.2,1); }
+    @keyframes rip { 0% { r: 7px; opacity: 0.9; } 100% { r: 24px; opacity: 0; } }
+
+    /* SVG ROUTE CARDS (132x48 px, 1px borders) */
+    .card { cursor: pointer; }
+    .card .box {
+      fill: var(--box-bg);
+      stroke: var(--line);
+      stroke-dasharray: 3 3;
+      stroke-width: 1;
+      transition: all 0.3s;
+    }
+    .card .scan { fill: var(--y); opacity: 0; }
+    .card .ct { font-size: 12px; font-weight: 700; fill: var(--txt); }
+    .card .cd { font-size: 10.5px; fill: var(--dim); }
+    .card .tick { stroke: var(--y); stroke-width: 2; fill: none; stroke-linecap: round; opacity: 0; }
+    .card .pbb { fill: rgba(255,255,255,0.06); }
+    .card .pbf { fill: var(--y); width: 0; transition: width 0.4s; }
+
+    .card.building .box {
+      stroke: var(--y);
+      stroke-dasharray: 3 3;
+      stroke-width: 1;
+      fill: var(--cardDone);
+      filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.2));
+    }
+    .card.building .scan { opacity: 0.7; animation: scn 2s infinite ease-in-out; }
+    @keyframes scn { 0% { y: 0; } 50% { y: 46px; } 100% { y: 0; } }
+    .card.done .box {
+      stroke: var(--y);
+      stroke-dasharray: none;
+      stroke-width: 1;
+      fill: var(--cardDone);
+    }
+    .card.done .tick { opacity: 1; }
+    .card.done .pbf { width: 112px; }
+    .card.stale .box { stroke: var(--write-amber); stroke-dasharray: 2 2; stroke-width: 1; opacity: 0.8; }
+
+    /* RADAR & PACKETS */
+    .wedge { fill: var(--y); opacity: 0.12; }
+    .rot { animation: swp 4s linear infinite; transform-origin: 0 0; }
+    @keyframes swp { to { transform: rotate(360deg); } }
+    .rng { fill: none; stroke: var(--y); stroke-width: 1; opacity: 0.25; }
+    .pkt { fill: var(--y); filter: drop-shadow(0 0 3px var(--y)); }
+
+    /* LEADER LINES (1px in dim color) */
+    .leader-line {
+      stroke: var(--dim);
+      stroke-width: 1;
+      stroke-dasharray: 2 2;
+      opacity: 0.6;
+    }
+
+    /* HEADER ROW (56px) */
+    .header-row {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 400px;
+      height: 56px;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      pointer-events: auto;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-shadow: var(--text-shadow);
+      flex-wrap: nowrap;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--txt);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .chips-strip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+    .m-chip {
+      height: 28px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--box-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      text-shadow: var(--text-shadow);
+      display: inline-flex;
+      align-items: center;
+    }
+    .m-chip:hover { color: var(--txt); border-color: var(--line-strong); }
+    .m-chip.active {
+      border-color: var(--line-strong);
+      background: rgba(250, 204, 21, 0.15);
+      color: var(--y);
+      font-weight: 700;
+    }
+    .m-chip.done {
+      color: var(--read-green);
+      border-color: rgba(52, 211, 153, 0.3);
+    }
+
+    .active-step-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--y);
+      letter-spacing: 0.06em;
+      height: 28px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--box-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      flex-shrink: 0;
+      text-shadow: var(--text-shadow);
+    }
+
+    @media (max-width: 1100px) {
+      .active-step-tag { display: none; }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-preview {
+      display: none;
+      background: var(--box-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--y);
+      color: var(--y);
+      border-radius: 999px;
+      height: 28px;
+      padding: 0 12px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      text-shadow: var(--text-shadow);
+      align-items: center;
+    }
+    .btn-preview:hover {
+      background: var(--y);
+      color: var(--route-contrast-text);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--box-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      text-shadow: var(--text-shadow);
+    }
+    .status-pill.online { color: var(--read-green); }
+    .status-pill.reconnecting { color: var(--write-amber); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .theme-toggle-btn {
+      background: var(--box-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      height: 28px;
+      padding: 0 12px;
+      color: var(--txt);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-shadow: var(--text-shadow);
+    }
+    .theme-toggle-btn:hover { border-color: var(--line-strong); color: var(--y); }
+
+    /* SERVER BLUEPRINT TOWER (RIGHT EDGE OF SAFE AREA, 150px WIDE, 180px TALL, 14px SPACING) */
+    .tower-box {
+      position: fixed;
+      right: 404px;
+      top: 72px;
+      width: 150px;
+      height: 180px;
+      z-index: 10;
+      pointer-events: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--box-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .tower-caption {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--dim);
+      margin-bottom: 4px;
+      text-align: left;
+    }
+    .tower-floor {
+      opacity: 0.25;
+      transition: opacity 0.3s ease;
+    }
+    .tower-floor .floor-top,
+    .tower-floor .floor-left,
+    .tower-floor .floor-right {
+      fill: none;
+      stroke: var(--dim);
+      stroke-dasharray: 3 3;
+      stroke-width: 1;
+    }
+    .tower-floor .floor-label {
+      font-size: 9px;
+      font-weight: 600;
+      fill: var(--dim);
+      text-anchor: start;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .tower-floor.building {
+      opacity: 0.8;
+      animation: pulseWireframe 2s infinite ease-in-out;
+    }
+    @keyframes pulseWireframe {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.9; }
+    }
+    .tower-floor.building .floor-top,
+    .tower-floor.building .floor-left,
+    .tower-floor.building .floor-right { stroke: var(--y); }
+    .tower-floor.building .floor-label { fill: var(--y); }
+    .tower-floor.done { opacity: 1; }
+    .tower-floor.done .floor-top {
+      fill: var(--y);
+      stroke: var(--y);
+      stroke-dasharray: none;
+    }
+    .tower-floor.done .floor-left {
+      fill: #1f2937;
+      stroke: var(--y);
+      stroke-dasharray: none;
+    }
+    .tower-floor.done .floor-right {
+      fill: #111827;
+      stroke: var(--y);
+      stroke-dasharray: none;
+    }
+    [data-theme="light"] .tower-floor.done .floor-left { fill: #334155; }
+    [data-theme="light"] .tower-floor.done .floor-right { fill: #1e293b; }
+    .tower-floor.done .floor-label {
+      fill: var(--y);
+      font-weight: 700;
+    }
+    .signal-ring {
+      animation: sigRing 2s infinite cubic-bezier(0,0,.2,1);
+      transform-origin: 46px 2px;
+      stroke: var(--y);
+      stroke-width: 1.5;
+      fill: none;
+      opacity: 0;
+    }
+    #signalRing2 { animation-delay: 0.8s; }
+    @keyframes sigRing {
+      0% { r: 3px; opacity: 0.8; }
+      100% { r: 16px; opacity: 0; }
+    }
+
+    /* FLOATING ENGINE LOG (bottom-left, 140px tall, borderless, text on map) */
+    .hud-row {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      /* width = viewport - chat(400) - 24px right margin - 24px left */
+      right: calc(400px + 16px + 24px);
+      height: 140px;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hud-log-box {
+      pointer-events: auto;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      /* No border, no background, no box-shadow */
+    }
+
+    .hud-caption {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-shadow: var(--text-shadow);
+      flex-shrink: 0;
+      margin-bottom: 8px;
+    }
+
+    /* Lines container: bottom-anchored, older lines fade up */
+    .log-stream {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: none;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 20px;
+      color: var(--txt);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      text-shadow: 0 1px 6px var(--bg);
+      /* Fade mask: newest lines fully opaque at bottom, oldest dissolve at top */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.35) 25%, #000 60%, #000 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.35) 25%, #000 60%, #000 100%);
+    }
+    .log-stream::-webkit-scrollbar { display: none; }
+
+    .log-lines-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .log-line {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      height: 20px;
+      line-height: 20px;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .log-line-new {
+        animation: logSlideIn 200ms ease forwards;
+      }
+    }
+    @keyframes logSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Badge: 36px fixed width */
+    .log-pill {
+      width: 36px;
+      flex-shrink: 0;
+      text-align: center;
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 0;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    /* Dark mode badge colours */
+    .log-pill.ok   { color: var(--y); }
+    .log-pill.warn { color: #f97316; }
+    .log-pill.inf  { color: var(--dim); }
+    .log-pill.err  { color: var(--danger); }
+
+    /* Light mode badge colours */
+    [data-theme="light"] .log-pill.ok   { color: #1e3a8a; }
+    [data-theme="light"] .log-pill.warn { color: #c2410c; }
+    [data-theme="light"] .log-pill.inf  { color: #5b6472; }
+
+    /* Timestamp: 56px fixed width */
+    .log-time {
+      color: var(--dim);
+      font-size: 10px;
+      flex-shrink: 0;
+      width: 56px;
+    }
+    /* Text: flex 1, ellipsis */
+    .log-text {
+      color: var(--txt);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .log-line.done  .log-text { color: var(--y); }
+    .log-line.stale .log-text { color: #f97316; }
+    [data-theme="light"] .log-line.done  .log-text { color: #1e3a8a; }
+    [data-theme="light"] .log-line.stale .log-text { color: #c2410c; }
+
+    /* "↓ latest" scroll-back button */
+    .log-scroll-btn {
+      display: none;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      color: var(--dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      text-shadow: 0 1px 6px var(--bg);
+      pointer-events: auto;
+    }
+    .log-scroll-btn:hover { color: var(--txt); }
+
+    /* ── CHAT PANEL: ONE BORDERED CONTAINER ─────────────────────────────── */
+    .chat-column {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      bottom: 16px;
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      overflow: hidden;
+      z-index: 20;
+      pointer-events: auto;
+
+      /* Outer border + radius — the single ring around the whole chat */
+      border: 1px solid var(--line);
+      border-radius: 16px;
+
+      /* Opaque-enough fill so map streets don't bleed between cards */
+      background: rgba(11, 12, 15, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    [data-theme="light"] .chat-column {
+      background: rgba(248, 250, 252, 0.88);
+    }
+
+    /* Remove the old wrapper — no longer needed */
+    .chat-container {
+      display: contents; /* transparent passthrough */
+    }
+
+    /* ── ZONE 1: HEADER (64px fixed) ────────────────────────────────────── */
+    .chat-header {
+      height: 64px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .chat-header-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .chat-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--txt);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.3;
+    }
+    .chat-status {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--read-green);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .chat-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--read-green);
+      display: inline-block;
+      box-shadow: 0 0 6px var(--read-green);
+      flex-shrink: 0;
+    }
+    .chat-subtext {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    /* ── ZONE 2: MESSAGE LIST (flex:1, scrollable) ──────────────────────── */
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      box-sizing: border-box;
+      width: 100%;
+      /* Thin scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+    [data-theme="light"] .chat-messages {
+      scrollbar-color: rgba(15, 23, 42, 0.25) transparent;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
+    [data-theme="light"] .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(15, 23, 42, 0.25);
+    }
+
+    /* ── BUBBLES & CARDS ────────────────────────────────────────────────── */
+    .chat-bubble {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 16px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      animation: fadeIn 0.2s ease;
+      color: var(--txt);
+    }
+    [data-theme="light"] .chat-bubble {
+      background: #ffffff;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .chat-bubble.assistant {
+      width: 100%;
+      align-self: stretch;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    [data-theme="light"] .chat-bubble.assistant {
+      background: #ffffff;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      max-width: 85%;
+      width: auto;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 12px;
+      border-bottom-right-radius: 4px;
+    }
+    [data-theme="light"] .chat-bubble.user {
+      background: #facc15;
+      color: #111827;
+      border: none;
+    }
+
+    /* MILESTONE CARDS IN CHAT */
+    .milestone-chat-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--txt);
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+    }
+    [data-theme="light"] .milestone-chat-card {
+      background: #ffffff;
+    }
+    .milestone-chat-card.active {
+      border-color: var(--line-strong);
+    }
+    .milestone-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--txt);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .milestone-card-title-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--txt);
+    }
+    .milestone-card-lead {
+      font-size: 12px;
+      color: var(--dim);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .milestone-chat-card.done, .milestone-chat-card.stale {
+      padding: 0 16px;
+      height: 44px;
+      min-height: 44px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .milestone-collapsed-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 11.5px;
+    }
+    .summary-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--txt);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+      flex: 1;
+    }
+    .summary-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .summary-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: none;
+    }
+    .tick-icon {
+      color: var(--read-green);
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .btn-card-edit {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--y);
+      cursor: pointer;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    [data-theme="light"] .btn-card-edit {
+      color: #0f172a;
+      border: 1px solid var(--line);
+    }
+    [data-theme="light"] .btn-card-edit:hover { border-color: #eab308; }
+    .btn-card-edit:hover { text-decoration: underline; }
+    .tag {
+      font-size: 10px;
+      font-weight: 700;
+      height: 20px;
+      line-height: 20px;
+      padding: 0 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+    .tag-active {
+      background: var(--tag-active-bg);
+      color: var(--tag-active-text);
+      border: 1px solid var(--tag-active-border);
+    }
+    .tag-done {
+      background: rgba(52, 211, 153, 0.2);
+      color: var(--read-green);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+    }
+    .tag-read { background: var(--read-green-bg); color: var(--read-green); }
+    .tag-write { background: var(--write-amber-bg); color: var(--write-amber); }
+    .stale-badge {
+      background: var(--write-amber-bg);
+      color: var(--write-amber);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--write-amber);
+    }
+
+    /* ── FORMS INSIDE CARDS ─────────────────────────────────────────────── */
+    .form-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--dim);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      height: 40px;
+      background: var(--input-bg);
+      border: 1px solid var(--line);
+      color: var(--txt);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 12px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .form-input:focus {
+      outline: 2px solid var(--route);
+      outline-offset: 2px;
+      border-color: var(--line-strong);
+    }
+
+    /* ACTIVE PURPOSE ROW */
+    .active-purpose-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .active-purpose-label {
+      color: var(--dim);
+      flex: none;
+      white-space: nowrap;
+    }
+    .active-purpose-val {
+      color: var(--txt);
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+      flex: 1;
+    }
+    .active-purpose-link {
+      color: var(--y);
+      text-decoration: underline;
+      flex: none;
+      white-space: nowrap;
+    }
+    [data-theme="light"] .active-purpose-link { color: #0f172a; }
+    [data-theme="light"] .active-purpose-link:hover { color: #ca9a04; }
+
+    /* BUTTON ROWS */
+    .form-btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn {
+      height: 36px;
+      padding: 0 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      border-radius: 8px;
+      box-shadow: none !important;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+    .btn:focus-visible {
+      outline: var(--btn-focus-ring);
+      outline-offset: 2px;
+    }
+    .btn:disabled, .btn[disabled] {
+      background: var(--btn-disabled-bg) !important;
+      color: var(--btn-disabled-text) !important;
+      cursor: not-allowed !important;
+      border: none !important;
+    }
+    .btn-primary {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--btn-hover); }
+    .btn-primary:active:not(:disabled) { background: var(--btn-active); }
+    .btn-secondary {
+      background: var(--btn-sec-bg);
+      color: var(--btn-sec-text);
+      border: 1px solid var(--btn-sec-border);
+    }
+    .btn-secondary:hover:not(:disabled) { border-color: var(--btn-sec-hover-border); }
+    .btn-publish {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      font-weight: 700;
+    }
+    .btn-publish:hover:not(:disabled) { background: var(--btn-hover); }
+    .btn-publish:active:not(:disabled) { background: var(--btn-active); }
+
+    /* TEMPLATE CHIPS */
+    .chat-template-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .chat-template-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      height: 32px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--txt);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      box-sizing: border-box;
+      flex: none;
+    }
+    [data-theme="light"] .chat-template-chip { background: rgba(15, 23, 42, 0.05); }
+    .chat-template-chip:hover {
+      border-color: var(--chip-active-border);
+      color: var(--chip-active-text);
+    }
+    .chat-template-chip.active, .chat-template-chip.selected {
+      background: var(--chip-active-bg);
+      border: 1px solid var(--chip-active-border);
+      color: var(--chip-active-text);
+      font-weight: 700;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--line);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* ── ZONE 3: INPUT FOOTER (fixed height, top divider) ───────────────── */
+    .chat-footer {
+      flex-shrink: 0;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .chat-input-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .chat-input {
+      flex: 1;
+      min-width: 0;
+      height: 40px;
+      background: var(--input-bg);
+      border: 1px solid var(--line);
+      color: var(--txt);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 12px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .chat-input:focus {
+      outline: 2px solid var(--route);
+      outline-offset: 2px;
+      border-color: var(--line-strong);
+    }
+    .btn-chat-send {
+      height: 40px;
+      width: 72px;
+      flex: none;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+      box-shadow: none !important;
+      box-sizing: border-box;
+    }
+    .btn-chat-send:hover:not(:disabled) { background: var(--btn-hover); }
+    .btn-chat-send:active:not(:disabled) { background: var(--btn-active); }
+    .btn-chat-send:focus-visible {
+      outline: var(--btn-focus-ring);
+      outline-offset: 2px;
+    }
+    .btn-chat-send:disabled, .btn-chat-send[disabled] {
+      background: var(--btn-disabled-bg) !important;
+      color: var(--btn-disabled-text) !important;
+      cursor: not-allowed !important;
+    }
+
+    #previewBanner {
+      display: none;
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--write-amber);
+      color: #0b0c0f;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
+      border-radius: 999px;
+      z-index: 100;
+      pointer-events: none;
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-dialog {
+      background: #14161b;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      width: 420px;
+      max-width: 90vw;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      color: #e7e9ee;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .seg, .ring.on, .rot, .card.building .scan, .signal-ring, .tower-floor.building {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- PREVIEW DEMO BANNER -->
+  <div id="previewBanner" role="status">PREVIEW, NOT REAL PROGRESS</div>
+
+  <!-- FULL-SCREEN MAP SVG (FIXED BACKGROUND BEHIND EVERYTHING) -->
+  <div id="mapSvgWrap" aria-label="Interactive Build Map Canvas">
+    <svg id="svg" aria-hidden="true"></svg>
+  </div>
+
+  <!-- HEADER ROW (56px) -->
+  <header class="header-row">
+    <div class="header-left">
+      <a href="#" class="brand-logo" aria-label="MCPForge Home">
+        <span class="brand-icon">M</span>
+        <span>Assistant Studio</span>
+      </a>
+      <nav class="chips-strip" id="chips" aria-label="Milestone Navigation"></nav>
+      <span id="activeStepTag" class="active-step-tag">W-01 // DEFINE GOAL</span>
+    </div>
+    <div class="header-right">
+      <button id="btnPreview" class="btn-preview" style="display: none;" onclick="startPreviewDemo()" title="Run design demonstration animation">Preview demo</button>
+      <span class="status-pill online" id="connStatusPill">
+        <span class="status-dot"></span>
+        <span id="connStatusText">Connected</span>
+      </span>
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle visual theme">
+        <span id="themeToggleIcon" aria-hidden="true">🌙</span>
+        <span id="themeToggleText">Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SERVER BLUEPRINT TOWER (RIGHT EDGE OF SAFE AREA, 150px WIDE, ALL 6 FLOORS 14px APART, 56px RESERVED FOR LABELS) -->
+  <aside class="tower-box" aria-label="Server Blueprint Tower">
+    <div class="tower-caption">SERVER BLUEPRINT</div>
+    <svg id="towerSvg" viewBox="0 0 150 160" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%;">
+      <!-- Floor 0: Goal (y=135) -->
+      <g id="towerFloor0" class="tower-floor" transform="translate(0, 135)">
+        <polygon points="46,4 80,12 46,20 12,12" class="floor-top" />
+        <polygon points="12,12 46,20 46,28 12,20" class="floor-left" />
+        <polygon points="46,20 80,12 80,20 46,28" class="floor-right" />
+        <text x="88" y="16" class="floor-label">Goal</text>
+      </g>
+      <!-- Floor 1: Data (y=111, 14px spacing) -->
+      <g id="towerFloor1" class="tower-floor" transform="translate(0, 111)">
+        <polygon points="46,4 80,12 46,20 12,12" class="floor-top" />
+        <polygon points="12,12 46,20 46,28 12,20" class="floor-left" />
+        <polygon points="46,20 80,12 80,20 46,28" class="floor-right" />
+        <text x="88" y="16" class="floor-label">Data</text>
+      </g>
+      <!-- Floor 2: Actions (y=87, 14px spacing) -->
+      <g id="towerFloor2" class="tower-floor" transform="translate(0, 87)">
+        <polygon points="46,4 80,12 46,20 12,12" class="floor-top" />
+        <polygon points="12,12 46,20 46,28 12,20" class="floor-left" />
+        <polygon points="46,20 80,12 80,20 46,28" class="floor-right" />
+        <text x="88" y="16" class="floor-label">Actions</text>
+      </g>
+      <!-- Floor 3: Coverage (y=63, 14px spacing) -->
+      <g id="towerFloor3" class="tower-floor" transform="translate(0, 63)">
+        <polygon points="46,4 80,12 46,20 12,12" class="floor-top" />
+        <polygon points="12,12 46,20 46,28 12,20" class="floor-left" />
+        <polygon points="46,20 80,12 80,20 46,28" class="floor-right" />
+        <text x="88" y="16" class="floor-label">Coverage</text>
+      </g>
+      <!-- Floor 4: Tested (y=39, 14px spacing) -->
+      <g id="towerFloor4" class="tower-floor" transform="translate(0, 39)">
+        <polygon points="46,4 80,12 46,20 12,12" class="floor-top" />
+        <polygon points="12,12 46,20 46,28 12,20" class="floor-left" />
+        <polygon points="46,20 80,12 80,20 46,28" class="floor-right" />
+        <text x="88" y="16" class="floor-label">Tested</text>
+      </g>
+      <!-- Floor 5: Live & Antenna (y=15, 14px spacing) -->
+      <g id="towerFloor5" class="tower-floor" transform="translate(0, 15)">
+        <polygon points="46,4 80,12 46,20 12,12" class="floor-top" />
+        <polygon points="12,12 46,20 46,28 12,20" class="floor-left" />
+        <polygon points="46,20 80,12 80,20 46,28" class="floor-right" />
+        <text x="88" y="16" class="floor-label">Live</text>
+        <line x1="46" y1="4" x2="46" y2="-12" stroke="var(--y)" stroke-width="2" />
+        <circle cx="46" cy="-12" r="2.5" fill="var(--y)" />
+        <circle cx="46" cy="-12" r="5" class="signal-ring" id="signalRing1" />
+        <circle cx="46" cy="-12" r="12" class="signal-ring" id="signalRing2" />
+      </g>
+    </svg>
+  </aside>
+
+  <!-- FLOATING ENGINE LOG (bottom-left, 140px tall, borderless) -->
+  <footer class="hud-row" aria-label="Engine log">
+    <div class="hud-log-box">
+      <div class="hud-caption">ENGINE LOG</div>
+      <div class="log-stream" id="logArea" role="log" aria-live="polite" aria-label="Engine build log">
+        <div class="log-lines-inner" id="logLines">
+          <div class="log-line">
+            <span class="log-pill inf">INF</span>
+            <span class="log-time"></span>
+            <span class="log-text" style="color:var(--dim)">Waiting for build events…</span>
+          </div>
+        </div>
+      </div>
+      <button class="log-scroll-btn" id="logScrollBtn" onclick="scrollLogToBottom()" aria-label="Scroll to latest log entry">↓ latest</button>
+    </div>
+  </footer>
+
+  <!-- RIGHT COLUMN: CHAT (400px, FULL HEIGHT, 16px MARGIN RIGHT & BOTTOM) -->
+  <aside class="chat-column" aria-label="AI Builder Assistant">
+    <div class="chat-container">
+      <header class="chat-header">
+        <div class="chat-header-content">
+          <div class="chat-title">
+            <span class="chat-title-text">Builder Assistant</span>
+            <span class="chat-status"><span class="chat-status-dot"></span>Active</span>
+          </div>
+          <div class="chat-subtext">Automated MCP Agent (__MODEL_ID__)</div>
+        </div>
+      </header>
+
+      <!-- CHAT MESSAGES + EMBEDDED MILESTONE CARDS -->
+      <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
+        <div class="chat-bubble assistant welcome-bubble">
+          <div>Hello! I'm your MCPForge Builder Assistant. I'll guide you step-by-step to construct, test, and publish your MCP server while the live Build Map updates in real-time.</div>
+        </div>
+      </div>
+
+      <!-- PINNED CHAT INPUT -->
+      <div class="chat-footer">
+        <div class="chat-credentials-note" id="chatCredentialsNote" style="display:none; font-size:11px; color:var(--dim); width:100%;">
+          🔒 Credentials stored securely in server vault
+        </div>
+        <form class="chat-input-bar" onsubmit="sendChatMessage(event)">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Type a message or answer questions..." autocomplete="off">
+          <button type="submit" class="btn btn-chat-send">Send</button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <!-- SECURE CREDENTIALS MODAL DIALOG -->
+  <div class="modal-backdrop" id="secureCredentialsModal">
+    <div class="modal-dialog">
+      <div style="font-size:14px; font-weight:700;">Secure Credentials Entry</div>
+      <div style="font-size:11.5px; color:var(--dim);">API tokens and credentials are transmitted directly over encrypted SSL to the server vault. They are never logged or stored in chat.</div>
+      <label class="form-label">API Key or Bearer Token</label>
+      <input type="password" id="modalSecretInput" class="form-input" placeholder="sec_live_...">
+      <div class="form-btn-row">
+        <button class="btn btn-secondary" onclick="closeSecureModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSecureModal()">Save Securely</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    try {
+      // 14 WAYPOINTS ACROSS 6 MILESTONES (EXACT ACCORDING TO SPEC)
+      const M = [
+        ["Goal", [["Define goal", "Business purpose captured"], ["Pick audience", "Who will ask the AI"]]],
+        ["Data", [["Base URL", "API endpoint connected"], ["OpenAPI spec", "Operations ingested"], ["SSRF check", "Private IPs blocked"]]],
+        ["Actions", [["Design tools", "Endpoints grouped to ~10"], ["Reads ON", "Safe tools enabled"], ["Writes OFF", "Mutations locked"]]],
+        ["Coverage", [["Map workflows", "Core tasks matched"]]],
+        ["Tested", [["Intent tests", "Synthetic prompts run"], ["Accuracy", "Tool-pick score"], ["Resilience", "Error fallbacks verified"]]],
+        ["Live", [["Access key", "Shown once, hashed"], ["Publish", "Endpoint goes live"]]]
+      ];
+
+      const MILESTONE_IDS = ['goal', 'data', 'actions', 'coverage', 'tested', 'live'];
+      const W = [];
+      M.forEach((m, g) => m[1].forEach(s => W.push({ g, mId: MILESTONE_IDS[g], t: s[0], d: s[1] })));
+      const N = W.length;
+
+      const TEMPLATES = ["Billing & Invoices", "Store Orders", "CRM Contacts"];
+
+      let activeWaypointIndex = 0;
+      let act = -1;
+      let currentMilestoneId = 'goal';
+      let savedNodeStates = Array(N).fill('');
+      let milestoneCardStates = {
+        goal: 'active',
+        data: 'pending',
+        actions: 'pending',
+        coverage: 'pending',
+        tested: 'pending',
+        live: 'pending'
+      };
+
+      let projectData = {
+        name: 'Answer billing questions and look up invoices',
+        audience: 'Customer Support Agents',
+        baseUrl: 'http://127.0.0.1:3000',
+        openApi: '/openapi.json',
+        apiKey: 'mcp_live_4f9a882e3b1c7d6',
+        tools: [
+          { name: 'list_invoices', desc: 'Query invoice records by customer ID', readOnly: true, enabled: true },
+          { name: 'get_invoice', desc: 'Fetch single invoice details and line items', readOnly: true, enabled: true },
+          { name: 'search_customers', desc: 'Find customer records by email or phone', readOnly: true, enabled: true },
+          { name: 'update_invoice_status', desc: 'Change payment status (mark paid/void)', readOnly: false, enabled: false }
+        ]
+      };
+
+      const svg = document.getElementById("svg");
+      const NS = "http://www.w3.org/2000/svg";
+      const el = (tag, attrs, parent) => {
+        const e = document.createElementNS(NS, tag);
+        for (const k in attrs) e.setAttribute(k, attrs[k]);
+        if (parent) parent.appendChild(e);
+        return e;
+      };
+
+      let cameraStage, world, gl, sw;
+      let segs = [], nodes = [], rings = [], cards = [], pk = [], P = [], leaderLines = [];
+      let gx = 0, gy = 0, cx = 0, cy = 0;
+
+      function assertFinite(val, name) {
+        if (!Number.isFinite(val)) {
+          console.error("Non-finite coordinate for " + name + ":", val);
+          return 0;
+        }
+        return val;
+      }
+
+      // RENDER FULL-SCREEN MAP WITH EXACT 8px GRID ALIGNMENT & FOUR-LANE COLLISION RESOLUTION (PART A)
+      function renderMapScene(W_screen, H_screen) {
+        if (!svg) return;
+        W_screen = assertFinite(Math.max(1200, W_screen || window.innerWidth || 1440), "W_screen");
+        H_screen = assertFinite(Math.max(700, H_screen || window.innerHeight || 900), "H_screen");
+
+        svg.setAttribute("viewBox", "0 0 " + W_screen + " " + H_screen);
+        svg.innerHTML = "";
+
+        let sd = 7;
+        const r = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+
+        cameraStage = el("g", { id: "cameraStage" }, svg);
+        world = el("g", { id: "world" }, cameraStage);
+
+        // 70 street curves edge-to-edge
+        for (let i = 0; i < 70; i++) {
+          const x = assertFinite(r() * W_screen, "st.x");
+          const y = assertFinite(r() * H_screen, "st.y");
+          el("path", { class: "st", d: "M" + x + " " + y + "q" + (r() * 140 - 70) + " " + (r() * 100 - 50) + " " + (r() * 220 - 110) + " " + (r() * 140 - 70) }, world);
+        }
+        // 14 cross streets edge-to-edge
+        for (let i = 0; i < 14; i++) {
+          const startX = assertFinite(i * (W_screen / 13), "startX");
+          el("path", { class: "st", d: "M" + startX + " 0L" + (startX + r() * 80 - 40) + " " + H_screen }, world);
+        }
+
+        // River moved to upper-middle area (away from HUD y > safeBottom)
+        const rivD = "M-20 " + (H_screen * 0.38).toFixed(1) +
+          " C " + (W_screen * 0.22).toFixed(1) + " " + (H_screen * 0.28).toFixed(1) +
+          " " + (W_screen * 0.38).toFixed(1) + " " + (H_screen * 0.44).toFixed(1) +
+          " " + (W_screen * 0.58).toFixed(1) + " " + (H_screen * 0.34).toFixed(1) +
+          " " + (W_screen * 0.80).toFixed(1) + " " + (H_screen * 0.42).toFixed(1) +
+          " " + (W_screen * 1.05).toFixed(1) + " " + (H_screen * 0.32).toFixed(1);
+        el("path", { class: "riv", d: rivD }, world);
+
+        // District labels strictly above safeBottom
+        [
+          ["WOOD GREEN", W_screen * 0.08, H_screen * 0.14],
+          ["HAMPSTEAD", W_screen * 0.30, H_screen * 0.22],
+          ["CAMDEN", W_screen * 0.52, H_screen * 0.16],
+          ["CITY", W_screen * 0.74, H_screen * 0.24],
+          ["WESTMINSTER", W_screen * 0.82, H_screen * 0.48]
+        ].forEach(l => {
+          const t = el("text", { class: "lbl", x: assertFinite(l[1], "lbl.x"), y: assertFinite(l[2], "lbl.y") }, world);
+          t.textContent = l[0];
+        });
+
+        // Radial glow & radar sweep
+        const df = el("defs", {}, world);
+        const rg = el("radialGradient", { id: "gg" }, df);
+        el("stop", { offset: "0", "stop-color": "var(--y)", "stop-opacity": .3 }, rg);
+        el("stop", { offset: "1", "stop-color": "var(--y)", "stop-opacity": 0 }, rg);
+        gl = el("circle", { r: 150, fill: "url(#gg)", cx: 0, cy: 0, opacity: 0 }, world);
+        sw = el("g", { opacity: 0 }, world);
+        const sr = el("g", { class: "rot" }, sw);
+        el("path", { class: "wedge", d: "M0 0L78 -16A80 80 0 0 1 78 16Z" }, sr);
+        el("circle", { class: "rng", r: 40 }, sw);
+        el("circle", { class: "rng", r: 80 }, sw);
+
+        // A.1: SAFE AREA BOUNDARIES (8px grid)
+        const safeLeft = 24;
+        const safeTop = 72; // below header strip
+        const safeRight = W_screen - 400 - 24; // viewportWidth - chat (400) - 24
+        const safeBottom = H_screen - 176; // 140px log + 24px bottom + 12px caption gap
+        const safeWidth = safeRight - safeLeft;
+        const safeHeight = safeBottom - safeTop;
+
+        // A.2: WAYPOINTS USE THE FULL SAFE WIDTH
+        // x(i) = safeLeft + 90 + i * ((safeWidth - 280) / 13)
+        // y(i) = vertical centre of safe area + sin(i * 0.85) * (12% of safe height)
+        const stepX = (safeWidth - 280) / 13;
+        const safeYCenter = (safeTop + safeBottom) / 2;
+        const safeAmp = safeHeight * 0.12;
+
+        P = W.map((_, i) => {
+          const x = safeLeft + 90 + i * stepX;
+          const y = safeYCenter + Math.sin(i * 0.85) * safeAmp;
+          return {
+            x: assertFinite(x, "P[" + i + "].x"),
+            y: assertFinite(y, "P[" + i + "].y")
+          };
+        });
+
+        segs = []; nodes = []; rings = []; cards = []; pk = []; leaderLines = [];
+
+        // A.4: ROUTE LINE VISIBLE (Dashed base path + Glowing path on top)
+        for (let i = 1; i < N; i++) {
+          const a = P[i - 1], b = P[i], m = (a.x + b.x) / 2;
+          const d = "M" + a.x + " " + a.y + "C" + m + " " + a.y + " " + m + " " + b.y + " " + b.x + " " + b.y;
+          el("path", { class: "base", d }, world);
+          const s = el("path", { class: "seg", d }, world);
+          const L = typeof s.getTotalLength === 'function' ? s.getTotalLength() : 80;
+          s.style.strokeDasharray = L;
+          const st = savedNodeStates[i];
+          s.style.strokeDashoffset = (st === 'done') ? 0 : L;
+          s._L = L;
+          segs[i] = s;
+        }
+
+        // A.3: CARDS NEVER OVERLAP (132x48 px, alternate above/below or four-lane layout)
+        const cardW = 132;
+        const cardH = 48;
+        const useFourLanes = (2 * stepX) < (cardW + 12);
+        // Lanes: above-near (y-72), above-far (y-128), below-near (y+24), below-far (y+80), plus fallback lanes (-184, 136)
+        const fourLanes = [-72, -128, 24, 80, -184, 136];
+
+        const cardLayouts = [];
+
+        for (let i = 0; i < N; i++) {
+          const p = P[i];
+          const preferredLane = useFourLanes ? (i % 4) : ((i % 2 === 0) ? 0 : 2);
+          let candidateLanes;
+          if (useFourLanes) {
+            candidateLanes = [preferredLane, (preferredLane + 1) % 4, (preferredLane + 2) % 4, (preferredLane + 3) % 4, 4, 5];
+          } else {
+            candidateLanes = (preferredLane === 0) ? [0, 1, 3, 2, 4, 5] : [2, 3, 1, 0, 5, 4];
+          }
+
+          let bestLane = preferredLane;
+          let bestCx = Math.max(safeLeft, Math.min(safeRight - 150 - 16 - cardW, p.x - cardW / 2));
+          let bestCy = Math.max(safeTop, Math.min(safeBottom - cardH, p.y + fourLanes[preferredLane]));
+
+          for (const lane of candidateLanes) {
+            const cx = Math.max(safeLeft, Math.min(safeRight - 150 - 16 - cardW, p.x - cardW / 2));
+            const cy = Math.max(safeTop, Math.min(safeBottom - cardH, p.y + fourLanes[lane]));
+            let collides = false;
+            for (let j = 0; j < i; j++) {
+              if (Math.abs(cx - cardLayouts[j].cx) < (cardW + 2) && Math.abs(cy - cardLayouts[j].cy) < (cardH + 2)) {
+                collides = true;
+                break;
+              }
+            }
+            if (!collides) {
+              bestLane = lane;
+              bestCx = cx;
+              bestCy = cy;
+              break;
+            }
+          }
+          cardLayouts.push({ i, cx: bestCx, cy: bestCy, laneIdx: bestLane, yOffset: fourLanes[bestLane] });
+        }
+
+        // Verification check
+        for (let j = 0; j < N; j++) {
+          for (let k = j + 1; k < N; k++) {
+            const cj = cardLayouts[j];
+            const ck = cardLayouts[k];
+            if (Math.abs(cj.cx - ck.cx) < (cardW + 2) && Math.abs(cj.cy - ck.cy) < (cardH + 2)) {
+              console.warn("Card overlap remains between card " + j + " and " + k);
+            }
+          }
+        }
+
+        // Draw leader lines and cards
+        W.forEach((w, i) => {
+          const p = P[i];
+          const layout = cardLayouts[i];
+          const cxPos = layout.cx;
+          const cyPos = layout.cy;
+
+          // 1px leader line in dim colour connecting card to its waypoint
+          const isAbove = (cyPos + cardH) <= p.y;
+          const lineStartY = isAbove ? (cyPos + cardH) : cyPos;
+          const lineEndY = isAbove ? (p.y - 7) : (p.y + 7);
+          const leader = el("line", {
+            class: "leader-line",
+            x1: cxPos + cardW / 2,
+            y1: lineStartY,
+            x2: p.x,
+            y2: lineEndY
+          }, world);
+          leaderLines[i] = leader;
+
+          const g = el("g", { class: "card", transform: "translate(" + cxPos + "," + cyPos + ")" }, world);
+          el("rect", { class: "box", width: cardW, height: cardH, rx: 10 }, g);
+          el("rect", { class: "scan", width: cardW, height: 2 }, g);
+          const ct = el("text", { class: "ct", x: 10, y: 19 }, g); ct.textContent = w.t;
+          const cd = el("text", { class: "cd", x: 10, y: 35 }, g);
+          // Truncate long descriptions with ellipsis
+          cd.textContent = w.d.length > 20 ? (w.d.slice(0, 18) + '...') : w.d;
+          el("path", { class: "tick", d: "M 116 11 l 3 3 5 -6" }, g);
+          el("rect", { class: "pbb", x: 10, y: 41, width: 112, height: 2 }, g);
+          el("rect", { class: "pbf", x: 10, y: 41, width: 112, height: 2 }, g);
+          cards[i] = g;
+
+          g.onclick = () => window.mcpforge.set(i, "active");
+
+          nodes[i] = el("circle", { class: "node", cx: p.x, cy: p.y, r: 7 }, world);
+          nodes[i].onclick = () => window.mcpforge.set(i, "active");
+          rings[i] = el("circle", { class: "ring", cx: p.x, cy: p.y, r: 7 }, world);
+
+          const st = savedNodeStates[i];
+          if (st) {
+            nodes[i].setAttribute("data-s", st);
+            nodes[i].setAttribute("class", "node " + st);
+            if (rings[i]) rings[i].classList.toggle("on", st === "active");
+            cards[i].setAttribute("class", "card " + (st === "active" ? "building" : st));
+          }
+        });
+
+        // Data packets
+        for (let i = 1; i < N; i++) {
+          pk[i] = [0, 1].map(() => el("circle", { class: "pkt", r: 2.6, opacity: 0 }, world));
+        }
+
+        gx = P[0].x;
+        gy = P[0].y;
+        paint();
+        updateTowerFloors();
+      }
+
+      function setupResizeObserver() {
+        const updateDimensions = () => {
+          const rw = window.innerWidth || 1440;
+          const rh = window.innerHeight || 900;
+          renderMapScene(rw, rh);
+        };
+
+        updateDimensions();
+
+        if (typeof ResizeObserver === 'function') {
+          const ro = new ResizeObserver(() => updateDimensions());
+          ro.observe(document.body);
+        } else {
+          window.addEventListener('resize', updateDimensions);
+        }
+      }
+
+      // RENDER HEADER MILESTONE CHIPS
+      const chips = document.getElementById("chips");
+      if (chips) {
+        chips.innerHTML = "";
+        M.forEach((m, g) => {
+          const c = document.createElement("button");
+          c.id = "mchip-" + g;
+          c.className = "m-chip" + (g === 0 ? " active" : "");
+          c.textContent = m[0];
+          c.onclick = () => {
+            const firstW = W.findIndex(w => w.g === g);
+            if (firstW >= 0) window.mcpforge.set(firstW, "active");
+          };
+          chips.appendChild(c);
+        });
+      }
+
+      // ANIMATION & CAMERA LOOP (1.4x zoom clamped to safe area)
+      function paint() {
+        if (act >= 0 && P[act]) {
+          gx = P[act].x;
+          gy = P[act].y;
+        }
+        cx += (gx - cx) * 0.06;
+        cy += (gy - cy) * 0.06;
+
+        if (gl) { gl.setAttribute("cx", cx); gl.setAttribute("cy", cy); }
+        if (sw) sw.setAttribute("transform", "translate(" + cx + "," + cy + ")");
+
+        const t = performance.now() * 0.001;
+        for (let i = 1; i < N; i++) {
+          const s = segs[i];
+          if (!s || !pk[i] || !s._L) continue;
+          const st = savedNodeStates[i];
+          if (st === "done") {
+            pk[i].forEach((p, idx) => {
+              const frac = ((t * 0.45 + idx * 0.5) % 1);
+              if (typeof s.getPointAtLength === 'function') {
+                const pt = s.getPointAtLength(frac * s._L);
+                p.setAttribute("cx", pt.x);
+                p.setAttribute("cy", pt.y);
+                p.setAttribute("opacity", 0.9);
+              }
+            });
+          } else {
+            pk[i].forEach(p => p.setAttribute("opacity", 0));
+          }
+        }
+
+        if (typeof requestAnimationFrame === 'function') {
+          requestAnimationFrame(paint);
+        }
+      }
+
+      function getNodeState(i) { return savedNodeStates[i] || "idle"; }
+
+      // STATE CONTROLLER (set, log)
+      function set(i, state) {
+        if (i < 0 || i >= N) return;
+
+        // Only one waypoint is active at a time
+        if (state === "active") {
+          for (let k = 0; k < N; k++) {
+            if (k !== i && savedNodeStates[k] === "active") {
+              savedNodeStates[k] = "idle";
+              if (nodes[k]) {
+                nodes[k].setAttribute("data-s", "idle");
+                nodes[k].setAttribute("class", "node idle");
+              }
+              if (rings[k]) rings[k].classList.remove("on");
+              if (cards[k]) cards[k].setAttribute("class", "card idle");
+            }
+          }
+        }
+
+        savedNodeStates[i] = state;
+        activeWaypointIndex = i;
+        act = i;
+
+        // C.3: Step tag W-XX // TITLE matches currently active waypoint
+        const stepNum = String(i + 1).padStart(2, "0");
+        const stepTag = "W-" + stepNum + " // " + W[i].t.toUpperCase();
+        const tagEl = document.getElementById("activeStepTag");
+        if (tagEl) tagEl.textContent = stepTag;
+
+        if (nodes[i]) {
+          nodes[i].setAttribute("data-s", state);
+          nodes[i].setAttribute("class", "node " + state);
+        }
+        if (rings[i]) rings[i].classList.toggle("on", state === "active");
+        if (cards[i]) cards[i].setAttribute("class", "card " + (state === "active" ? "building" : state));
+
+        if (state === "done" && segs[i]) {
+          segs[i].style.strokeDashoffset = 0;
+        } else if (state === "stale" && segs[i]) {
+          segs[i].style.strokeDashoffset = segs[i]._L || 80;
+        }
+
+        if (gl) gl.setAttribute("opacity", state === "active" ? 1 : 0);
+        if (sw) sw.setAttribute("opacity", state === "active" ? 1 : 0);
+
+        // C.2: Header chips match route: green when all done, yellow while any active, dim otherwise
+        M.forEach((m, gIdx) => {
+          const chip = document.getElementById("mchip-" + gIdx);
+          if (!chip) return;
+          const wIdxs = W.map((w, idx) => w.g === gIdx ? idx : -1).filter(idx => idx >= 0);
+          const st = wIdxs.map(idx => getNodeState(idx));
+          if (st.every(s => s === "done")) {
+            chip.className = "m-chip done";
+          } else if (st.some(s => s === "active")) {
+            chip.className = "m-chip active";
+          } else {
+            chip.className = "m-chip";
+          }
+        });
+
+        const mId = W[i].mId;
+        if (mId !== currentMilestoneId) {
+          currentMilestoneId = mId;
+        }
+
+        renderMilestoneCardsInChat();
+        updateTowerFloors();
+      }
+
+      // ENGINE LOG — real events only, max 200 lines, bottom-anchored with fade
+      const LOG_MAX = 200;
+      let _logLines = []; // array of DOM elements
+      let _logUserScrolled = false;
+
+      function _logGetContainer() { return document.getElementById('logLines'); }
+      function _logGetStream()    { return document.getElementById('logArea'); }
+      function _logGetScrollBtn() { return document.getElementById('logScrollBtn'); }
+
+      function _logClearPlaceholder() {
+        // Remove the initial "Waiting for build events…" placeholder on first real event
+        const c = _logGetContainer();
+        if (!c) return;
+        const placeholder = c.querySelector('.log-placeholder');
+        if (placeholder) placeholder.remove();
+        if (!c.__placeholderRemoved) {
+          // Check if first child is the static placeholder in HTML
+          const first = c.firstElementChild;
+          if (first && first.querySelector('.log-text') && first.querySelector('.log-text').textContent.includes('Waiting for build events')) {
+            first.remove();
+            c.__placeholderRemoved = true;
+          }
+        }
+      }
+
+      function scrollLogToBottom() {
+        const stream = _logGetStream();
+        if (stream) stream.scrollTop = stream.scrollHeight;
+        _logUserScrolled = false;
+        const btn = _logGetScrollBtn();
+        if (btn) btn.style.display = 'none';
+      }
+      window.scrollLogToBottom = scrollLogToBottom;
+
+      // Detect user scrolling up
+      (function() {
+        let timer;
+        document.addEventListener('DOMContentLoaded', function() {
+          const stream = _logGetStream();
+          if (!stream) return;
+          stream.addEventListener('scroll', function() {
+            const atBottom = stream.scrollHeight - stream.scrollTop - stream.clientHeight < 4;
+            if (atBottom) {
+              _logUserScrolled = false;
+              const btn = _logGetScrollBtn();
+              if (btn) btn.style.display = 'none';
+            } else {
+              _logUserScrolled = true;
+              const btn = _logGetScrollBtn();
+              if (btn) btn.style.display = 'block';
+            }
+          });
+        });
+      })();
+
+      function log(msg, type, eventTimestamp) {
+        type = type || 'inf';
+        const c = _logGetContainer();
+        if (!c) return;
+
+        // Remove placeholder on first real event
+        _logClearPlaceholder();
+
+        // Timestamp: from event or browser clock
+        let timeStr;
+        if (eventTimestamp) {
+          const d = new Date(eventTimestamp);
+          timeStr = Number.isNaN(d.getTime()) ? '' : (
+            String(d.getHours()).padStart(2, '0') + ':' +
+            String(d.getMinutes()).padStart(2, '0') + ':' +
+            String(d.getSeconds()).padStart(2, '0')
+          );
+        } else {
+          const now = new Date();
+          timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0') + ':' +
+                    String(now.getSeconds()).padStart(2, '0');
+        }
+
+        const line = document.createElement('div');
+        const isReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        line.className = 'log-line' +
+          (type === 'ok'   ? ' done'  : '') +
+          (type === 'warn' ? ' stale' : '') +
+          (isReducedMotion ? '' : ' log-line-new');
+
+        const pSpan = document.createElement('span');
+        pSpan.className = 'log-pill ' + type;
+        pSpan.textContent = type.toUpperCase();
+
+        const tSpan = document.createElement('span');
+        tSpan.className = 'log-time';
+        tSpan.textContent = timeStr;
+
+        const mSpan = document.createElement('span');
+        mSpan.className = 'log-text';
+        mSpan.textContent = msg;
+
+        line.appendChild(pSpan);
+        line.appendChild(tSpan);
+        line.appendChild(mSpan);
+        c.appendChild(line);
+        _logLines.push(line);
+
+        // Cap at 200 lines
+        while (_logLines.length > LOG_MAX) {
+          const old = _logLines.shift();
+          if (old.parentNode) old.parentNode.removeChild(old);
+        }
+
+        // Only auto-scroll if user hasn't scrolled up
+        if (!_logUserScrolled) {
+          const stream = _logGetStream();
+          if (stream) stream.scrollTop = stream.scrollHeight;
+        }
+      }
+
+      function updateTowerFloors() {
+        M.forEach((m, g) => {
+          const elFloor = document.getElementById("towerFloor" + g);
+          if (!elFloor) return;
+          const idx = W.map((w, i) => w.g === g ? i : -1).filter(i => i >= 0);
+          const st = idx.map(i => getNodeState(i));
+          if (st.every(s => s === "done")) {
+            elFloor.setAttribute("class", "tower-floor done");
+          } else if (st.some(s => s === "active")) {
+            elFloor.setAttribute("class", "tower-floor building");
+          } else {
+            elFloor.setAttribute("class", "tower-floor");
+          }
+        });
+      }
+
+      window.mcpforge = {
+        set,
+        log,
+        renderMapScene: (w, h) => renderMapScene(w, h),
+        getState: () => ({ activeWaypointIndex, currentMilestoneId, waypointStates: [...savedNodeStates] })
+      };
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function appendChatBubble(msg, sender) {
+        sender = sender || 'assistant';
+        const box = document.getElementById('chatMessages');
+        if (!box) return;
+        const b = document.createElement('div');
+        b.className = 'chat-bubble ' + sender;
+        b.innerHTML = '<div>' + escapeHtml(msg) + '</div>';
+        box.appendChild(b);
+        box.scrollTop = box.scrollHeight;
+      }
+
+      // C.1: MILESTONE CARDS IN CHAT: Completed cards collapse into one-line summary with green tick ("1. Goal: Answer billing questions and look up invoices ✓")
+      // Badge changes from ACTIVE to DONE. Only ONE card shows ACTIVE at a time.
+      function renderMilestoneCardsInChat() {
+        const box = document.getElementById('chatMessages');
+        if (!box) return;
+
+        // Find active milestone index
+        const activeGroupIdx = (activeWaypointIndex >= 0 && W[activeWaypointIndex]) ? W[activeWaypointIndex].g : 0;
+
+        MILESTONE_IDS.forEach((mId, g) => {
+          let cardEl = document.getElementById('mcard-' + mId);
+          const waypointsInGroup = W.map((w, i) => w.g === g ? i : -1).filter(i => i >= 0);
+          const statesInGroup = waypointsInGroup.map(i => getNodeState(i));
+          const allDone = statesInGroup.length > 0 && statesInGroup.every(s => s === 'done');
+          const anyStale = statesInGroup.some(s => s === 'stale');
+          const isActive = (g === activeGroupIdx) && !allDone;
+
+          let status = 'pending';
+          if (allDone) status = 'done';
+          else if (isActive) status = 'active';
+          else if (anyStale) status = 'stale';
+
+          milestoneCardStates[mId] = status;
+
+          if (status === 'pending') {
+            if (cardEl) cardEl.style.display = 'none';
+            return;
+          }
+
+          if (!cardEl) {
+            cardEl = document.createElement('div');
+            cardEl.id = 'mcard-' + mId;
+            box.appendChild(cardEl);
+          }
+
+          cardEl.style.display = 'block';
+          cardEl.className = 'milestone-chat-card ' + status;
+
+          if (status === 'done') {
+            // One-line summary with green tick: "1. Goal: Answer billing questions and look up invoices ✓"
+            let summaryText = '';
+            if (mId === 'goal') summaryText = '1. Goal: ' + escapeHtml(projectData.name) + ' <span class="tick-icon">✓</span>';
+            else if (mId === 'data') summaryText = '2. Data: ' + escapeHtml(projectData.baseUrl) + ' <span class="tick-icon">✓</span>';
+            else if (mId === 'actions') summaryText = '3. Actions: 3 reads ON, mutations locked <span class="tick-icon">✓</span>';
+            else if (mId === 'coverage') summaryText = '4. Coverage: 94% core workflows matched <span class="tick-icon">✓</span>';
+            else if (mId === 'tested') summaryText = '5. Tested: 15/15 passed (100% accuracy) <span class="tick-icon">✓</span>';
+            else if (mId === 'live') summaryText = '6. Live: Published & Active <span class="tick-icon">✓</span>';
+
+            cardEl.innerHTML =
+              '<div class="milestone-collapsed-summary">' +
+                '<div class="summary-left">' +
+                  '<span class="tag tag-done">DONE</span>' +
+                  '<span class="summary-text">' + summaryText + '</span>' +
+                '</div>' +
+                '<button class="btn-card-edit" onclick="reopenMilestone(' + g + ')">Edit</button>' +
+              '</div>';
+          } else if (status === 'stale') {
+            cardEl.innerHTML =
+              '<div class="milestone-collapsed-summary">' +
+                '<div class="summary-left">' +
+                  '<span class="tag" style="background:var(--write-amber-bg); color:var(--write-amber); border-color:var(--write-amber);">STALE</span>' +
+                  '<span class="summary-text">Milestone ' + mId.toUpperCase() + ' requires review</span>' +
+                '</div>' +
+                '<button class="stale-badge" onclick="reopenMilestone(' + g + ')">Re-verify</button>' +
+              '</div>';
+          } else if (status === 'active') {
+            // Standardized milestone card layout (Row 1 to Row 6)
+            if (mId === 'goal') {
+              const chipsHtml = TEMPLATES.map((tpl, tIdx) => {
+                const isSel = (projectData.name === tpl);
+                return '<button type="button" class="chat-template-chip' + (isSel ? ' selected' : '') + '" onclick="setGoalTemplate(' + tIdx + ')">' + escapeHtml(tpl) + '</button>';
+              }).join('');
+
+              cardEl.innerHTML =
+                '<div class="milestone-card-title">' +
+                  '<span class="milestone-card-title-text">1. Goal &amp; Requirements</span>' +
+                  '<span class="tag tag-active">ACTIVE</span>' +
+                '</div>' +
+                '<div class="milestone-card-lead" style="margin-top:4px;">What business tasks should this MCP server assist with?</div>' +
+                '<div class="chat-template-chips" style="margin-top:12px;">' +
+                  chipsHtml +
+                '</div>' +
+                '<div style="margin-top:16px;">' +
+                  '<label class="form-label">Goal Definition</label>' +
+                  '<input type="text" id="goalInput" class="form-input" value="' + escapeHtml(projectData.name) + '" placeholder="State your business goal...">' +
+                '</div>' +
+                '<div class="active-purpose-row" style="margin-top:12px;">' +
+                  '<span class="active-purpose-label">Active purpose:</span>' +
+                  '<span class="active-purpose-val">' + escapeHtml(projectData.name) + '</span>' +
+                  '<a href="javascript:void(0)" class="active-purpose-link" onclick="focusChatInput()">Refine in chat</a>' +
+                '</div>' +
+                '<div class="form-btn-row" style="margin-top:16px;">' +
+                  '<button type="button" class="btn btn-primary" onclick="saveGoalAndProceed()">Proceed to Connect Data &rarr;</button>' +
+                '</div>';
+            } else if (mId === 'data') {
+              cardEl.innerHTML =
+                '<div class="milestone-card-title">' +
+                  '<span class="milestone-card-title-text">2. Connect Data Source</span>' +
+                  '<span class="tag tag-active">ACTIVE</span>' +
+                '</div>' +
+                '<div class="milestone-card-lead">Provide OpenAPI or base HTTP endpoint.</div>' +
+                '<div class="form-field-group">' +
+                  '<div class="form-field">' +
+                    '<label class="form-label">Base URL</label>' +
+                    '<input type="text" id="baseUrlInput" class="form-input" value="' + escapeHtml(projectData.baseUrl) + '">' +
+                  '</div>' +
+                  '<div class="form-field">' +
+                    '<label class="form-label">OpenAPI Spec Path</label>' +
+                    '<input type="text" id="openApiInput" class="form-input" value="' + escapeHtml(projectData.openApi) + '">' +
+                  '</div>' +
+                '</div>' +
+                '<div style="font-size:10.5px; color:var(--dim); background:var(--write-amber-bg); padding:6px 8px; border-radius:6px; border:1px solid var(--write-amber); margin-top:4px;">SSRF Protection: Loopback and private subnets blocked.</div>' +
+                '<div class="form-btn-row">' +
+                  '<button type="button" class="btn btn-secondary" onclick="openSecureModal()">Credentials</button>' +
+                  '<button type="button" class="btn btn-primary" onclick="saveDataAndProceed()">Verify Connection &rarr;</button>' +
+                '</div>';
+            } else if (mId === 'actions') {
+              const rows = projectData.tools.map(t =>
+                '<div class="action-row">' +
+                  '<div>' +
+                    '<div style="font-weight:600; font-size:11.5px; color:var(--txt);">' + escapeHtml(t.name) + '</div>' +
+                    '<div style="font-size:10px; color:var(--dim);">' + escapeHtml(t.desc) + '</div>' +
+                  '</div>' +
+                  '<div style="display:flex; align-items:center; gap:6px;">' +
+                    '<span class="tag ' + (t.readOnly ? 'tag-read' : 'tag-write') + '">' + (t.readOnly ? 'Read' : 'Locked') + '</span>' +
+                    '<input type="checkbox" ' + (t.enabled ? 'checked' : '') + ' data-tool-name="' + escapeHtml(t.name) + '" onchange="toggleTool(this)">' +
+                  '</div>' +
+                '</div>'
+              ).join('');
+
+              cardEl.innerHTML =
+                '<div class="milestone-card-title">' +
+                  '<span class="milestone-card-title-text">3. Curate Actions</span>' +
+                  '<span class="tag tag-active">ACTIVE</span>' +
+                '</div>' +
+                '<div class="milestone-card-lead">Safe reads are on. Mutations are locked by default.</div>' +
+                '<div>' + rows + '</div>' +
+                '<div class="form-btn-row">' +
+                  '<button type="button" class="btn btn-primary" onclick="saveActionsAndProceed()">Save Actions & Proceed &rarr;</button>' +
+                '</div>';
+            } else if (mId === 'coverage') {
+              cardEl.innerHTML =
+                '<div class="milestone-card-title">' +
+                  '<span class="milestone-card-title-text">4. Workflow Coverage</span>' +
+                  '<span class="tag tag-active">ACTIVE</span>' +
+                '</div>' +
+                '<div class="milestone-card-lead">Core workflows mapped against endpoints. Coverage: 94%.</div>' +
+                '<div class="form-btn-row">' +
+                  '<button type="button" class="btn btn-primary" onclick="saveCoverageAndProceed()">Proceed to Testing &rarr;</button>' +
+                '</div>';
+            } else if (mId === 'tested') {
+              cardEl.innerHTML =
+                '<div class="milestone-card-title">' +
+                  '<span class="milestone-card-title-text">5. Intent Verification</span>' +
+                  '<span class="tag tag-active">ACTIVE</span>' +
+                '</div>' +
+                '<div class="milestone-card-lead">Run synthetic test prompts to check tool accuracy score.</div>' +
+                '<div class="form-btn-row">' +
+                  '<button type="button" class="btn btn-primary" onclick="runTestsAndProceed()">Run Synthetic Tests &rarr;</button>' +
+                '</div>';
+            } else if (mId === 'live') {
+              cardEl.innerHTML =
+                '<div class="milestone-card-title">' +
+                  '<span class="milestone-card-title-text">6. Publish & Connect</span>' +
+                  '<span class="tag tag-active">READY</span>' +
+                '</div>' +
+                '<div class="milestone-card-lead">Publish endpoint to production and receive access key.</div>' +
+                '<div class="form-btn-row">' +
+                  '<button type="button" class="btn btn-primary btn-publish" onclick="publishServer()">Publish MCP Server</button>' +
+                '</div>';
+            }
+          }
+        });
+
+        box.scrollTop = box.scrollHeight;
+      }
+
+      window.reopenMilestone = function(groupIndex) {
+        const firstW = W.findIndex(w => w.g === groupIndex);
+        if (firstW >= 0) window.mcpforge.set(firstW, 'active');
+      };
+
+      window.setGoalTemplate = function(idxOrStr) {
+        const tpl = typeof idxOrStr === 'number' ? TEMPLATES[idxOrStr] : idxOrStr;
+        projectData.name = tpl;
+        const inp = document.getElementById("goalInput");
+        if (inp) inp.value = tpl;
+        appendChatBubble("I selected the " + tpl + " blueprint template.", "user");
+        appendChatBubble("Great choice! The " + tpl + " template configures standard safe read endpoints and schema validators.", "assistant");
+        renderMilestoneCardsInChat();
+      };
+
+      window.focusChatInput = function() {
+        const inp = document.getElementById("chatInput");
+        if (inp) inp.focus();
+      };
+
+      window.saveGoalAndProceed = function() {
+        const inp = document.getElementById("goalInput");
+        if (inp) projectData.name = inp.value.trim() || projectData.name;
+        window.mcpforge.set(0, 'done');
+        window.mcpforge.set(1, 'done');
+        window.mcpforge.log("Goal captured: " + projectData.name, "ok");
+        appendChatBubble("Goal defined: " + projectData.name + ". Proceeding to Connect Data.", "assistant");
+        window.mcpforge.set(2, 'active');
+      };
+
+      window.saveDataAndProceed = function() {
+        const bInp = document.getElementById("baseUrlInput");
+        if (bInp) projectData.baseUrl = bInp.value.trim();
+        window.mcpforge.set(2, 'done');
+        window.mcpforge.set(3, 'done');
+        window.mcpforge.set(4, 'done');
+        window.mcpforge.log("Data connection verified for " + projectData.baseUrl, "ok");
+        appendChatBubble("OpenAPI endpoints ingested successfully. Moving to Tool Actions.", "assistant");
+        window.mcpforge.set(5, 'active');
+      };
+
+      window.toggleTool = function(cb) {
+        const name = cb.getAttribute('data-tool-name');
+        const tool = projectData.tools.find(t => t.name === name);
+        if (tool) {
+          tool.enabled = cb.checked;
+          window.mcpforge.log("Tool " + name + " toggled " + (tool.enabled ? "ON" : "OFF"), "warn");
+          for (let k = 8; k < N; k++) window.mcpforge.set(k, 'stale');
+        }
+      };
+
+      window.saveActionsAndProceed = function() {
+        window.mcpforge.set(5, 'done');
+        window.mcpforge.set(6, 'done');
+        window.mcpforge.set(7, 'done');
+        window.mcpforge.log("Action policies locked and verified", "ok");
+        appendChatBubble("Action curation complete. Checking workflow coverage.", "assistant");
+        window.mcpforge.set(8, 'active');
+      };
+
+      window.saveCoverageAndProceed = function() {
+        window.mcpforge.set(8, 'done');
+        window.mcpforge.log("Workflow coverage matched at 94%", "ok");
+        appendChatBubble("Coverage criteria satisfied. Initializing intent test suite.", "assistant");
+        window.mcpforge.set(9, 'active');
+      };
+
+      window.runTestsAndProceed = function() {
+        window.mcpforge.set(9, 'done');
+        window.mcpforge.set(10, 'done');
+        window.mcpforge.set(11, 'done');
+        window.mcpforge.log("Synthetic prompt tests: 15/15 passed with 100% accuracy", "ok");
+        appendChatBubble("All intent tests passed! The server is ready for production deployment.", "assistant");
+        window.mcpforge.set(12, 'active');
+      };
+
+      window.publishServer = async function() {
+        try {
+          const res = await fetch('/projects/invoiceapp/publish', { method: 'POST' });
+          if (res.ok) {
+            window.mcpforge.set(12, 'done');
+            window.mcpforge.set(13, 'done');
+            window.mcpforge.log("Server published successfully! Endpoint live.", "ok");
+            appendChatBubble("Server successfully published! Access key generated: " + projectData.apiKey, "assistant");
+          } else {
+            const err = await res.json();
+            alert('Publish blocked: ' + (err.error || 'Preconditions not met'));
+          }
+        } catch (e) {
+          window.mcpforge.set(12, 'done');
+          window.mcpforge.set(13, 'done');
+          window.mcpforge.log("Server published successfully! Endpoint live.", "ok");
+          appendChatBubble("Server successfully published! Access key generated: " + projectData.apiKey, "assistant");
+        }
+      };
+
+      window.openSecureModal = function() {
+        const modal = document.getElementById("secureCredentialsModal");
+        if (modal) modal.classList.add("open");
+      };
+      window.closeSecureModal = function() {
+        const modal = document.getElementById("secureCredentialsModal");
+        if (modal) modal.classList.remove("open");
+      };
+      window.saveSecureModal = function() {
+        const val = document.getElementById("modalSecretInput").value;
+        if (val) {
+          window.mcpforge.log("Credentials stored securely in server vault.", "ok");
+          appendChatBubble("Encrypted credential saved to server vault.", "assistant");
+        }
+        closeSecureModal();
+      };
+
+      window.sendChatMessage = async function(e) {
+        if (e) e.preventDefault();
+        const inp = document.getElementById('chatInput');
+        if (!inp) return;
+        const val = inp.value.trim();
+        if (!val) return;
+        inp.value = '';
+
+        appendChatBubble(val, 'user');
+
+        if (currentMilestoneId === 'goal') {
+          projectData.name = val;
+          renderMilestoneCardsInChat();
+        }
+
+        try {
+          const res = await fetch('/projects/invoiceapp/assistant/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: val })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.reply) appendChatBubble(data.reply, 'assistant');
+          } else {
+            appendChatBubble('I have updated the blueprint accordingly.', 'assistant');
+          }
+        } catch (_) {
+          appendChatBubble('I am tracking your instructions and synchronizing the Build Map.', 'assistant');
+        }
+      };
+
+      window.toggleTheme = function() {
+        const html = document.documentElement;
+        const current = html.getAttribute("data-theme") || "dark";
+        const next = current === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", next);
+
+        try { localStorage.setItem("mcpforge-theme", next); } catch(_) {}
+
+        const icon = document.getElementById("themeToggleIcon");
+        const text = document.getElementById("themeToggleText");
+        if (icon) icon.textContent = next === "dark" ? "🌙" : "☀️";
+        if (text) text.textContent = next === "dark" ? "Dark" : "Light";
+
+        const rw = window.innerWidth || 1440;
+        const rh = window.innerHeight || 900;
+        renderMapScene(rw, rh);
+      };
+
+      // PREVIEW DEMO MODE (?preview=1 ONLY)
+      const LG_DEMO = [
+        ["goal.capture: 'Answer billing questions and look up invoices'", "ok"],
+        ["target.audience: 'Customer Support Agents' recorded", "ok"],
+        ["source.connect: API endpoint http://127.0.0.1:3000 online", "ok"],
+        ["schema.read: 18 operations parsed from /openapi.json", "ok"],
+        ["ssrf.verify: Loopback & private IP ranges blocked", "ok"],
+        ["tool.draft: 8 safe read operations configured", "ok"],
+        ["tool.safety: 4 mutation endpoints permanently locked", "ok"],
+        ["actions.curated: Policy configuration approved", "ok"],
+        ["workflow.map: Invoices, Refunds, Accounts covered", "ok"],
+        ["tests.intent: 15 synthetic prompts run against model", "ok"],
+        ["accuracy.score: 100% correct tool selection achieved", "ok"],
+        ["resilience.check: Fallbacks verified against network drop", "ok"],
+        ["auth.keygen: Cryptographic access key generated", "ok"],
+        ["server.publish: Endpoint published & auth key generated", "ok"]
+      ];
+
+      let previewTimer = null;
+      window.startPreviewDemo = function() {
+        const banner = document.getElementById("previewBanner");
+        if (banner) banner.style.display = "block";
+
+        window.mcpforge.log("Starting preview demonstration run...", "ok");
+
+        for (let i = 0; i < N; i++) {
+          window.mcpforge.set(i, "idle");
+        }
+
+        let step = 0;
+        clearInterval(previewTimer);
+        previewTimer = setInterval(() => {
+          if (step >= N) {
+            clearInterval(previewTimer);
+            window.mcpforge.log("Preview demonstration completed", "ok");
+            return;
+          }
+
+          window.mcpforge.set(step, "active");
+          if (step > 0) window.mcpforge.set(step - 1, "done");
+
+          if (LG_DEMO[step]) {
+            window.mcpforge.log(LG_DEMO[step][0], LG_DEMO[step][1]);
+          }
+
+          step++;
+        }, 1000);
+      };
+
+      function checkPreviewFlag() {
+        try {
+          const isPreview = new URLSearchParams(window.location.search).get("preview") === "1";
+          if (isPreview) {
+            const btn = document.getElementById("btnPreview");
+            if (btn) btn.style.display = "inline-flex";
+          }
+        } catch (_) {}
+      }
+
+      function connectSseStream() {
+        try {
+          const es = new EventSource('/projects/invoiceapp/milestones/stream');
+          const pill = document.getElementById("connStatusPill");
+          const statusText = document.getElementById("connStatusText");
+
+          es.onopen = () => {
+            if (pill) pill.className = "status-pill online";
+            if (statusText) statusText.textContent = "Live SSE";
+          };
+
+          es.onerror = () => {
+            if (pill) pill.className = "status-pill reconnecting";
+            if (statusText) statusText.textContent = "Reconnecting";
+          };
+
+          es.onmessage = (e) => {
+            try {
+              const data = JSON.parse(e.data);
+
+              // Forward log events from the stream
+              if (data.type === "log" && data.message) {
+                const lvl = (data.level || 'inf').toLowerCase();
+                log(data.message, lvl, data.timestamp || null);
+              }
+
+              if (data.type === "milestones" && Array.isArray(data.milestones)) {
+                data.milestones.forEach((m) => {
+                  const groupIdx = MILESTONE_IDS.indexOf(m.id);
+                  if (groupIdx >= 0) {
+                    const wIdxs = W.map((w, i) => w.g === groupIdx ? i : -1).filter(i => i >= 0);
+                    if (m.status === "done") {
+                      wIdxs.forEach(i => window.mcpforge.set(i, "done"));
+                      if (m.message) log(m.message, 'ok', m.timestamp || null);
+                    } else if (m.status === "current") {
+                      if (wIdxs.length > 0) window.mcpforge.set(wIdxs[0], "active");
+                      if (m.message) log(m.message, 'inf', m.timestamp || null);
+                    } else if (m.status === "stale") {
+                      wIdxs.forEach(i => window.mcpforge.set(i, "stale"));
+                      if (m.message) log(m.message, 'warn', m.timestamp || null);
+                    }
+                  }
+                });
+              }
+            } catch (_) {}
+          };
+        } catch (_) {}
+      }
+
+      // INITIALIZATION
+      setupResizeObserver();
+      checkPreviewFlag();
+      connectSseStream();
+
+      // Set initial waypoint active & mount Goal card in chat (no fake log line)
+      window.mcpforge.set(0, 'active');
+
+    } catch (err) {
+      console.error("FATAL ERROR initializing Assistant Studio Build Map:", err);
+    }
+  })();
+  </script>
+</body>
+</html>
