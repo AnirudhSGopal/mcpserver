@@ -220,7 +220,9 @@ describe('MCPForge End-to-End Acceptance Benchmark Suite', () => {
       inbound_auth: {
         type: 'oauth',
         issuer: 'https://auth.company.com',
-        client_id: 'claude-connector'
+        client_id: 'claude-connector',
+        scopes: [],
+        allowed_callback_urls: []
       }
     };
     const runtime = new McpRuntimeServer(oauthConfig);
@@ -303,6 +305,8 @@ describe('MCPForge End-to-End Acceptance Benchmark Suite', () => {
     const errorToolConfig: ServerConfig = {
       name: 'err-test',
       version: '1.0.0',
+      inbound_auth: { type: 'none', warning_accepted: true },
+      sources: [],
       tools: [
         {
           name: 'fail_tool',

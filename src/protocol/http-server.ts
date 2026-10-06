@@ -421,7 +421,7 @@ export function createMcpHttpServer(
           if (!isPublic) {
             if (body.apiKey) {
               rawApiKey = body.apiKey;
-              keyHash = crypto.createHash('sha256').update(rawApiKey).digest('hex');
+              keyHash = crypto.createHash('sha256').update(rawApiKey!).digest('hex');
             } else {
               const generated = generateAndHashApiKey();
               rawApiKey = generated.rawKey;
