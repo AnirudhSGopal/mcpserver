@@ -184,7 +184,7 @@ Generate a JSON array of MCP tools for this API. Return ONLY the JSON array, not
 }
 
 // ─── Generate config from scratch using Gemini ───────────────────────────────
-async function generateFullConfig(params: {
+export async function generateFullConfig(params: {
   apiKey: string;
   modelId: string;
   serverName: string;
@@ -479,4 +479,7 @@ function getClaudeConfigPath(): string {
   return '~/.config/Claude/claude_desktop_config.json';
 }
 
-main();
+if (process.argv[1]?.includes('create-mcp')) {
+  main();
+}
+

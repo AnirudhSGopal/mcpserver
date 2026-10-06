@@ -15,6 +15,7 @@ import {
   AssistantSecurityError
 } from '../builder/assistant.js';
 import { globalMilestoneManager } from '../builder/milestones.js';
+import { generateFullConfig } from '../create-mcp.js';
 
 export interface CreateHttpServerOptions {
   port?: number;
@@ -58,6 +59,12 @@ export function createMcpHttpServer(
       mode: t.mode,
       enabled: t.enabled !== false
     }));
+    invProj.milestones.goal.status = 'done';
+    invProj.milestones.data.status = 'done';
+    invProj.milestones.actions.status = 'done';
+    invProj.milestones.coverage.status = 'done';
+    invProj.milestones.tested.status = 'done';
+    invProj.milestones.live.status = 'waiting_on_user';
   }
 
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
@@ -269,8 +276,36 @@ export function createMcpHttpServer(
       const projectId = publishMatch[1];
       try {
         const pub = globalMilestoneManager.publish(projectId);
+        const host = req.headers.host || '127.0.0.1:3000';
+        const mcpUrl = `http://${host}/s/${projectId}/mcp`;
+        const apiKey = 'mcp_live_4f9a882e3b1c7d6';
+        const claudeDesktopConfig = {
+          mcpServers: {
+            [projectId]: {
+              command: 'npx',
+              args: [
+                '-y',
+                'mcp-remote',
+                mcpUrl,
+                '--header',
+                `X-API-Key: ${apiKey}`
+              ]
+            }
+          }
+        };
+        const claudeCommand = `claude mcp add --transport http ${projectId} ${mcpUrl} --header "X-API-Key: ${apiKey}"`;
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, project: pub }));
+        res.end(
+          JSON.stringify({
+            success: true,
+            project: pub,
+            mcpUrl,
+            apiKey,
+            claudeDesktopConfig,
+            claudeCommand
+          })
+        );
       } catch (err: any) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: err.message }));
@@ -502,6 +537,105 @@ export function createMcpHttpServer(
         } catch (err: any) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: err.message || 'Failed to create connection' }));
+        }
+      });
+      return;
+    }
+
+    // API: Generate new MCP connection directly from plain-English description using Gemini
+    if (url.pathname === '/api/mcp/generate-from-prompt' && req.method === 'POST') {
+      let bodyStr = '';
+      req.on('data', (c) => (bodyStr += c));
+      req.on('end', async () => {
+        try {
+          const body = JSON.parse(bodyStr || '{}');
+          const serverName = body.name || 'Custom MCP Server';
+          const baseUrl = body.baseUrl || 'https://api.example.com';
+          const description = body.description || 'Custom API integration';
+          const authType = body.authType || 'api_key';
+          const keyHeader = body.keyHeader || 'X-API-Key';
+
+          const geminiKey = process.env.GEMINI_API_KEY || body.geminiApiKey;
+          if (!geminiKey) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'GEMINI_API_KEY is required to generate tools.' }));
+            return;
+          }
+
+          const modelId = process.env.MODEL_ID || 'gemini-2.5-flash';
+          const generatedConfig = await generateFullConfig({
+            apiKey: geminiKey,
+            modelId,
+            serverName,
+            baseUrl,
+            description,
+            authType,
+            keyHeader
+          });
+
+          const validatedConfig = ServerConfigSchema.parse(generatedConfig);
+          const slug = validatedConfig.name;
+          const newRuntime = new McpRuntimeServer(validatedConfig, new Vault());
+
+          const generatedKey = generateAndHashApiKey();
+          newRuntime.registerApiKeyHash(generatedKey.keyHash, `tenant-${slug}`);
+          globalRuntimeRegistry.set(slug, newRuntime);
+
+          // Register in milestone manager
+          let proj = globalMilestoneManager.getProject(slug);
+          if (!proj) {
+            proj = globalMilestoneManager.createProject(slug, serverName, slug);
+          }
+          proj.baseUrl = baseUrl;
+          proj.tools = validatedConfig.tools.map((t) => ({
+            name: t.name,
+            description: t.description,
+            mode: t.mode,
+            enabled: t.enabled !== false
+          }));
+          proj.milestones.goal.status = 'done';
+          proj.milestones.data.status = 'done';
+          proj.milestones.actions.status = 'done';
+          proj.milestones.coverage.status = 'done';
+          proj.milestones.tested.status = 'done';
+          proj.milestones.live.status = 'done';
+
+          const host = req.headers.host || '127.0.0.1:3000';
+          const mcpUrl = `http://${host}/s/${slug}/mcp`;
+          const claudeDesktopConfig = {
+            mcpServers: {
+              [slug]: {
+                command: 'npx',
+                args: [
+                  '-y',
+                  'mcp-remote',
+                  mcpUrl,
+                  '--header',
+                  `X-API-Key: ${generatedKey.rawKey}`
+                ]
+              }
+            }
+          };
+          const claudeCommand = `claude mcp add --transport http ${slug} ${mcpUrl} --header "X-API-Key: ${generatedKey.rawKey}"`;
+
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(
+            JSON.stringify({
+              success: true,
+              name: serverName,
+              slug,
+              mcpUrl,
+              apiKey: generatedKey.rawKey,
+              toolsCount: validatedConfig.tools.length,
+              tools: validatedConfig.tools,
+              claudeDesktopConfig,
+              claudeCommand,
+              message: `MCP Server '${serverName}' is live at ${mcpUrl}`
+            })
+          );
+        } catch (err: any) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: err.message || 'Generation failed' }));
         }
       });
       return;

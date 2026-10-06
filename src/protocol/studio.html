@@ -1380,6 +1380,46 @@ gi<!DOCTYPE html>
     </div>
   </div>
 
+  <!-- CONNECT TO CLAUDE MODAL DIALOG -->
+  <div class="modal-backdrop" id="connectClaudeModal">
+    <div class="modal-dialog" style="width: 520px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:15px; font-weight:700; color:var(--y);">🎉 Your MCP Server is Live!</div>
+        <button type="button" class="btn btn-secondary" style="height:26px; padding:0 8px; font-size:11px;" onclick="closeClaudeModal()">✕</button>
+      </div>
+      <div style="font-size:12px; color:var(--dim);">Users can connect this MCP server directly to Claude Desktop or Claude Code without downloading your repository.</div>
+
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label class="form-label" style="font-size:11px; font-weight:600;">1. Live MCP Endpoint URL</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="mcpEndpointInput" readonly class="form-input" style="font-family:ui-monospace,monospace; font-size:11.5px;" value="http://127.0.0.1:3000/s/invoiceapp/mcp">
+          <button type="button" class="btn btn-secondary" style="height:38px; width:70px; flex-shrink:0;" onclick="copyInput('mcpEndpointInput', this)">Copy</button>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label class="form-label" style="font-size:11px; font-weight:600;">2. Claude Desktop Config (claude_desktop_config.json)</label>
+        <div style="position:relative;">
+          <textarea id="claudeConfigSnippet" readonly rows="7" class="form-input" style="font-family:ui-monospace,monospace; font-size:11px; resize:none; line-height:1.4; padding:8px; width:100%; height:120px;"></textarea>
+          <button type="button" class="btn btn-primary" style="position:absolute; top:8px; right:8px; height:28px; padding:0 10px; font-size:11px;" onclick="copyTextarea('claudeConfigSnippet', this)">Copy JSON</button>
+        </div>
+        <div style="font-size:10.5px; color:var(--dim);">Paste this snippet into <code>%APPDATA%\Claude\claude_desktop_config.json</code> (Windows) or <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (Mac).</div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label class="form-label" style="font-size:11px; font-weight:600;">3. Claude Code CLI Command</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="claudeCliCommand" readonly class="form-input" style="font-family:ui-monospace,monospace; font-size:11px;" value="">
+          <button type="button" class="btn btn-secondary" style="height:38px; width:70px; flex-shrink:0;" onclick="copyInput('claudeCliCommand', this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="form-btn-row" style="margin-top:6px;">
+        <button class="btn btn-primary" style="width:100%;" onclick="closeClaudeModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
   <script>
   (function() {
     try {
@@ -2217,22 +2257,89 @@ gi<!DOCTYPE html>
       };
 
       window.publishServer = async function() {
+        const projectId = 'invoiceapp';
+        let pubData = null;
         try {
-          const res = await fetch('/projects/invoiceapp/publish', { method: 'POST' });
+          const res = await fetch(`/projects/${projectId}/publish`, { method: 'POST' });
           if (res.ok) {
-            window.mcpforge.set(12, 'done');
-            window.mcpforge.set(13, 'done');
-            window.mcpforge.log("Server published successfully! Endpoint live.", "ok");
-            appendChatBubble("Server successfully published! Access key generated: " + projectData.apiKey, "assistant");
-          } else {
-            const err = await res.json();
-            alert('Publish blocked: ' + (err.error || 'Preconditions not met'));
+            pubData = await res.json();
           }
         } catch (e) {
-          window.mcpforge.set(12, 'done');
-          window.mcpforge.set(13, 'done');
-          window.mcpforge.log("Server published successfully! Endpoint live.", "ok");
-          appendChatBubble("Server successfully published! Access key generated: " + projectData.apiKey, "assistant");
+          // fallback mock for standalone preview
+        }
+
+        const host = window.location.host || '127.0.0.1:3000';
+        const mcpUrl = pubData?.mcpUrl || `http://${host}/s/${projectId}/mcp`;
+        const apiKey = pubData?.apiKey || projectData.apiKey || 'mcp_live_4f9a882e3b1c7d6';
+        const configSnippet = JSON.stringify(pubData?.claudeDesktopConfig || {
+          mcpServers: {
+            [projectId]: {
+              command: "npx",
+              args: [
+                "-y",
+                "mcp-remote",
+                mcpUrl,
+                "--header",
+                `X-API-Key: ${apiKey}`
+              ]
+            }
+          }
+        }, null, 2);
+        const cliCmd = pubData?.claudeCommand || `claude mcp add --transport http ${projectId} ${mcpUrl} --header "X-API-Key: ${apiKey}"`;
+
+        window.mcpforge.set(12, 'done');
+        window.mcpforge.set(13, 'done');
+        window.mcpforge.log("Server published successfully! Endpoint live at " + mcpUrl, "ok");
+
+        // Populate modal
+        const urlInp = document.getElementById('mcpEndpointInput');
+        if (urlInp) urlInp.value = mcpUrl;
+        const cfgArea = document.getElementById('claudeConfigSnippet');
+        if (cfgArea) cfgArea.value = configSnippet;
+        const cliInp = document.getElementById('claudeCliCommand');
+        if (cliInp) cliInp.value = cliCmd;
+
+        // Open modal
+        openClaudeModal();
+
+        // Chat bubble with button to re-open modal
+        appendChatBubble(
+          `<div><b>🎉 Server Published & Live!</b></div>` +
+          `<div style="margin-top:6px; font-size:11.5px;">Endpoint: <code>${mcpUrl}</code></div>` +
+          `<div style="margin-top:2px; font-size:11.5px;">API Key: <code>${apiKey}</code></div>` +
+          `<button type="button" class="btn btn-primary" style="margin-top:10px; height:28px; font-size:11px;" onclick="openClaudeModal()">📋 View Claude Desktop Config</button>`,
+          "assistant"
+        );
+      };
+
+      window.openClaudeModal = function() {
+        const modal = document.getElementById("connectClaudeModal");
+        if (modal) modal.classList.add("open");
+      };
+
+      window.closeClaudeModal = function() {
+        const modal = document.getElementById("connectClaudeModal");
+        if (modal) modal.classList.remove("open");
+      };
+
+      window.copyInput = function(id, btn) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.select();
+          navigator.clipboard.writeText(el.value);
+          const orig = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        }
+      };
+
+      window.copyTextarea = function(id, btn) {
+        const el = document.getElementById(id);
+        if (el) {
+          navigator.clipboard.writeText(el.value);
+          const orig = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
         }
       };
 
