@@ -4,6 +4,7 @@
   "description": "MCPForge: Config-driven MCP Server runtime",
   "type": "module",
   "scripts": {
+    "create": "tsx src/create-mcp.ts",
     "dev": "tsx src/index.ts",
     "start": "tsx src/index.ts",
     "demo": "tsx src/demo-runner.ts",
