@@ -788,6 +788,123 @@ gi<!DOCTYPE html>
       border: none;
     }
 
+    /* ANTIGRAVITY AGENT PLAN REVIEW CARD */
+    .ag-plan-card {
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 14px;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    [data-theme="light"] .ag-plan-card {
+      background: #f8fafc;
+      border-color: rgba(15, 23, 42, 0.2);
+    }
+    .ag-plan-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .ag-plan-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.15);
+      color: var(--y);
+      border: 1px solid var(--line-strong);
+    }
+    .ag-plan-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--txt);
+      flex: 1;
+    }
+    .ag-plan-desc {
+      font-size: 12px;
+      color: var(--txt);
+      line-height: 1.45;
+    }
+    .ag-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .ag-tools-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ag-tool-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    [data-theme="light"] .ag-tool-row {
+      background: #ffffff;
+    }
+    .ag-tool-name {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--y);
+    }
+    .ag-tool-desc {
+      font-size: 10.5px;
+      color: var(--dim);
+      margin-top: 2px;
+    }
+    .ag-path-banner {
+      font-size: 11px;
+      color: var(--read-green);
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.35;
+    }
+    .ag-action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .ag-action-row .btn {
+      flex: 1;
+      height: 36px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ag-btn-reject {
+      background: var(--btn-sec-bg);
+      border: 1px solid var(--line);
+      color: var(--txt);
+    }
+    .ag-btn-reject:hover {
+      border-color: var(--line-strong);
+      color: var(--danger);
+    }
+
     /* MILESTONE CARDS IN CHAT */
     .milestone-chat-card {
       border: 1px solid var(--line);
@@ -1424,7 +1541,7 @@ gi<!DOCTYPE html>
   (function() {
     try {
       // 14 WAYPOINTS ACROSS 6 MILESTONES (EXACT ACCORDING TO SPEC)
-      const M = [
+      let M = [
         ["Goal", [["Define goal", "Business purpose captured"], ["Pick audience", "Who will ask the AI"]]],
         ["Data", [["Base URL", "API endpoint connected"], ["OpenAPI spec", "Operations ingested"], ["SSRF check", "Private IPs blocked"]]],
         ["Actions", [["Design tools", "Endpoints grouped to ~10"], ["Reads ON", "Safe tools enabled"], ["Writes OFF", "Mutations locked"]]],
@@ -1434,9 +1551,88 @@ gi<!DOCTYPE html>
       ];
 
       const MILESTONE_IDS = ['goal', 'data', 'actions', 'coverage', 'tested', 'live'];
-      const W = [];
+      let W = [];
       M.forEach((m, g) => m[1].forEach(s => W.push({ g, mId: MILESTONE_IDS[g], t: s[0], d: s[1] })));
-      const N = W.length;
+      let N = W.length;
+
+      window.regenerateBuildMapPath = function(usecaseName, toolList) {
+        const isEmployee = /company|employee|staff|team|hr|worker/i.test(usecaseName);
+        const isStore = /store|order|shop|product|cart|ecommerce/i.test(usecaseName);
+        const isCrm = /crm|contact|lead|customer|client/i.test(usecaseName);
+
+        let domainPrefix = 'Custom MCP';
+        let customM = null;
+
+        if (isEmployee) {
+          domainPrefix = 'Staff Directory';
+          customM = [
+            ["Goal", [["Staff Directory", "Company & staff data"], ["HR & Ops Team", "Internal directory search"]]],
+            ["Data", [["Company API", "Base endpoint connected"], ["Staff Schema", "Roles & records ingested"], ["SSRF Guard", "Internal IP isolation"]]],
+            ["Actions", [["Staff Tools", ((toolList && toolList.length) || 4) + " curated tools"], ["Directory Reads", "Safe queries enabled"], ["Staff Writes", "Mutations locked by default"]]],
+            ["Coverage", [["Org Workflows", "Reporting lines & depts mapped"]]],
+            ["Tested", [["Staff Prompts", "Synthetic queries tested"], ["Query Accuracy", "100% intent matched"], ["Resilience", "Role fallbacks verified"]]],
+            ["Live", [["HR Vault Key", "Cryptographic key generated"], ["Publish HR MCP", "Ready for Claude & ChatGPT"]]]
+          ];
+        } else if (isStore) {
+          domainPrefix = 'Store & Orders';
+          customM = [
+            ["Goal", [["Store Catalog", "Products & orders purpose"], ["Support Agents", "Customer lookup audience"]]],
+            ["Data", [["Storefront API", "Shopify/Store connected"], ["Order Schema", "Products & skus ingested"], ["SSRF Guard", "Payment gateway guarded"]]],
+            ["Actions", [["Store Tools", ((toolList && toolList.length) || 4) + " curated tools"], ["Order Reads ON", "Catalog search enabled"], ["Order Writes", "Refunds/deletes locked"]]],
+            ["Coverage", [["Order Workflows", "Checkout & shipping mapped"]]],
+            ["Tested", [["Order Prompts", "Product queries verified"], ["Fulfillment Rate", "98% accuracy confirmed"], ["Resilience", "Out-of-stock fallbacks ok"]]],
+            ["Live", [["Store Key", "Live API secret issued"], ["Publish Store MCP", "Active for Claude & ChatGPT"]]]
+          ];
+        } else if (isCrm) {
+          domainPrefix = 'CRM Contacts';
+          customM = [
+            ["Goal", [["CRM Directory", "Customer & lead tracking"], ["Sales Team", "Pipeline queries audience"]]],
+            ["Data", [["CRM Gateway", "HubSpot/Salesforce connected"], ["Lead Schema", "Contact records parsed"], ["SSRF Guard", "Cloud endpoints verified"]]],
+            ["Actions", [["CRM Toolset", ((toolList && toolList.length) || 4) + " tools configured"], ["Lead Reads ON", "Contact queries enabled"], ["Mutations OFF", "Lead creation locked"]]],
+            ["Coverage", [["Sales Workflows", "Deal pipeline mapped"]]],
+            ["Tested", [["Contact Prompts", "Search queries validated"], ["Accuracy", "100% intent precision"], ["Resilience", "Duplicate contact guards"]]],
+            ["Live", [["CRM Access Key", "Hashed access key generated"], ["Publish CRM MCP", "Live in Claude Desktop"]]]
+          ];
+        } else {
+          const shortName = usecaseName.length > 16 ? usecaseName.slice(0, 14) + '..' : usecaseName;
+          domainPrefix = shortName;
+          customM = [
+            ["Goal", [[shortName, "Business goal defined"], ["Target Audience", "Assistant audience set"]]],
+            ["Data", [["Base API", "REST endpoint connected"], ["Endpoint Schema", "API routes ingested"], ["SSRF Shield", "Loopback & private IPs blocked"]]],
+            ["Actions", [["Custom Tools", ((toolList && toolList.length) || 4) + " tools designed"], ["Safe Reads ON", "Inspection tools active"], ["Mutations OFF", "Write tools locked"]]],
+            ["Coverage", [["Core Workflows", "Task coverage mapped"]]],
+            ["Tested", [["Intent Tests", "Synthetic test suite run"], ["Score Check", "Tool match rate verified"], ["Resilience", "Network drops verified"]]],
+            ["Live", [["Vault Access Key", "Secure token generated"], ["Publish MCP", "Live and ready for Claude"]]]
+          ];
+        }
+
+        M = customM;
+        W = [];
+        M.forEach((m, g) => m[1].forEach(s => W.push({ g, mId: MILESTONE_IDS[g], t: s[0], d: s[1] })));
+        N = W.length;
+        savedNodeStates = Array(N).fill('');
+
+        // Update blueprint tower floor labels to match domain
+        const floorLabels = [
+          "Goal: " + domainPrefix,
+          "Data: Connected",
+          "Actions: " + ((toolList && toolList.length) || 4) + " Tools",
+          "Coverage: 95%",
+          "Tested: 15/15",
+          "Live: Ready"
+        ];
+        floorLabels.forEach((lbl, fIdx) => {
+          const fl = document.querySelector("#towerFloor" + fIdx + " .floor-label");
+          if (fl) fl.textContent = lbl;
+        });
+
+        // Re-render SVG scene with new waypoints and descriptions
+        const rw = window.innerWidth || 1440;
+        const rh = window.innerHeight || 900;
+        renderMapScene(rw, rh);
+
+        window.mcpforge.log("Build Map path dynamically recompiled for: " + domainPrefix + " (14 waypoints)", "ok");
+      };
 
       const TEMPLATES = ["Billing & Invoices", "Store Orders", "CRM Contacts"];
 
@@ -2364,6 +2560,143 @@ gi<!DOCTYPE html>
         closeSecureModal();
       };
 
+      window.currentPlan = null;
+
+      function getToolDescription(toolName) {
+        const descMap = {
+          get_company_profile: "Retrieve company overview, headquarters, and key contacts",
+          list_employees: "List active staff members filtered by department or role",
+          get_employee_details: "Fetch full profile, title, email, and manager info",
+          search_departments: "Query company organizational chart and teams",
+          list_products: "Search catalog items, SKUs, and stock availability",
+          get_order_details: "Look up customer orders and delivery tracking",
+          list_customer_orders: "Fetch order history for a specific customer",
+          get_store_inventory: "Check warehouse stock levels and product variants",
+          search_contacts: "Search client records by email, name, or company",
+          get_contact_details: "Retrieve full customer profile and activity timeline",
+          list_active_deals: "View sales pipeline stages and deal amounts",
+          get_account_summary: "Check enterprise account status and assigned rep",
+          list_invoices: "Query invoice records by customer ID",
+          get_invoice: "Fetch single invoice details and line items",
+          search_customers: "Find customer records by email or phone",
+          search_records: "Query database records matching filter criteria",
+          get_record_by_id: "Retrieve detailed item attributes and timestamps",
+          list_recent_activity: "Fetch chronological audit logs and updates"
+        };
+        return descMap[toolName] || ("Safe query to retrieve " + toolName.replace(/_/g, " "));
+      }
+
+      function buildAntigravityPlanCardHtml(plan) {
+        const toolRowsHtml = plan.tools.map(t =>
+          '<div class="ag-tool-row">' +
+            '<div style="flex:1;">' +
+              '<div class="ag-tool-name">⚡ ' + escapeHtml(t.name) + '</div>' +
+              '<div class="ag-tool-desc">' + escapeHtml(t.desc) + '</div>' +
+            '</div>' +
+            '<span class="tag tag-read">READ</span>' +
+          '</div>'
+        ).join('');
+
+        return (
+          '<div class="ag-plan-card">' +
+            '<div class="ag-plan-header">' +
+              '<div style="display:flex; align-items:center; gap:8px;">' +
+                '<span class="ag-plan-badge">PLAN PROPOSAL</span>' +
+                '<span class="ag-plan-title">' + escapeHtml(plan.summary) + '</span>' +
+              '</div>' +
+              '<span style="font-size:10px; color:var(--dim); font-family:ui-monospace,monospace;">MCP v1.0</span>' +
+            '</div>' +
+
+            '<div class="ag-plan-desc">' +
+              escapeHtml(plan.explanation) +
+            '</div>' +
+
+            '<div>' +
+              '<div class="ag-section-label">Recommended MCP Tool Actions (Read-Only)</div>' +
+              '<div class="ag-tools-grid">' +
+                toolRowsHtml +
+              '</div>' +
+            '</div>' +
+
+            '<div class="ag-path-banner">' +
+              '<span style="font-size:14px;">🗺️</span>' +
+              '<div>' +
+                '<div style="font-weight:600; color:var(--read-green);">Dynamic Build Route Ready to Compile</div>' +
+                '<div style="font-size:10px; color:var(--dim); margin-top:2px;">Approving this plan will dynamically adapt all 14 waypoints, tower blueprints, and actions to <b>' + escapeHtml(plan.summary) + '</b>.</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<div class="ag-action-row">' +
+              '<button type="button" class="btn ag-btn-reject" onclick="rejectCurrentPlan()">✕ Adjust / Reject</button>' +
+              '<button type="button" class="btn btn-primary" onclick="acceptCurrentPlan()">✓ Accept Plan &amp; Compile Route &rarr;</button>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      window.acceptCurrentPlan = function() {
+        if (!window.currentPlan) {
+          window.saveGoalAndProceed();
+          return;
+        }
+
+        const plan = window.currentPlan;
+
+        // 1. Update project goal
+        projectData.name = plan.summary;
+        const gInput = document.getElementById("goalInput");
+        if (gInput) gInput.value = plan.summary;
+        const apVal = document.querySelector(".active-purpose-val");
+        if (apVal) apVal.textContent = plan.summary;
+
+        // 2. Set curated tools into projectData.tools
+        if (Array.isArray(plan.tools) && plan.tools.length > 0) {
+          projectData.tools = plan.tools.map(t => ({
+            name: t.name,
+            desc: t.desc || getToolDescription(t.name),
+            readOnly: true,
+            enabled: true
+          }));
+        }
+
+        // 3. Dynamically regenerate Build Map route (all 14 waypoints, cards, tower labels, SVG scene)
+        if (window.regenerateBuildMapPath) {
+          window.regenerateBuildMapPath(plan.summary, projectData.tools);
+        }
+
+        // 4. Solidify Milestone 1 (Goal)
+        window.mcpforge.set(0, 'done');
+        window.mcpforge.set(1, 'done');
+        const floor0 = document.getElementById('towerFloor0');
+        if (floor0) floor0.classList.add('done');
+
+        // 5. Unlock and advance to Milestone 2 (Data Source)
+        window.mcpforge.set(2, 'active');
+
+        // 6. Confirmation message in chat
+        appendChatBubble(
+          '<div><b>✓ Plan Accepted &amp; Build Route Compiled!</b></div>' +
+          '<div style="font-size:11.5px; margin-top:4px; color:var(--txt);">Solidified Milestone 1 (Goal: <b>' + escapeHtml(plan.summary) + '</b>) and compiled 14 waypoints for Claude &amp; ChatGPT.</div>' +
+          '<div style="font-size:11px; margin-top:4px; color:var(--dim);">Curated ' + projectData.tools.length + ' read-only tools. Advancing to Step 2: Connect Data Source.</div>',
+          'assistant',
+          true
+        );
+
+        window.mcpforge.log("Plan accepted: " + plan.summary + " route compiled (14 waypoints)", "ok");
+        window.currentPlan = null;
+      };
+
+      window.rejectCurrentPlan = function() {
+        appendChatBubble(
+          '<div><b>✕ Plan Adjusted</b></div>' +
+          '<div style="font-size:11.5px; margin-top:4px; color:var(--txt);">No problem! What would you like to modify? Describe your desired endpoints, permissions, or requirements below.</div>',
+          'assistant',
+          true
+        );
+        window.currentPlan = null;
+        window.focusChatInput();
+      };
+
       window.sendChatMessage = async function(e) {
         if (e) e.preventDefault();
         const inp = document.getElementById('chatInput');
@@ -2374,16 +2707,25 @@ gi<!DOCTYPE html>
 
         appendChatBubble(val, 'user');
 
-        const isApproval = /^(ok|okay|yes|proceed|looks good|confirm|sure|continue|approve)\b/i.test(val);
+        const isApproval = /^(ok|okay|yes|proceed|accept|confirm|looks good|sure|continue|approve)\b/i.test(val);
+        const isRejection = /^(reject|no|modify|change|adjust|disagree|decline)\b/i.test(val);
         const isGoalActive = (activeWaypointIndex <= 1);
 
-        // If user says "ok" / "proceed" when reviewing goal, automatically advance!
-        if (isApproval && isGoalActive) {
-          appendChatBubble(
-            `<div><b>✓ Plan Approved!</b> Advancing to Step 2: Connect Data Source.</div>`,
-            'assistant'
-          );
-          saveGoalAndProceed();
+        // If user says "ok" / "accept" while plan is proposed or goal active
+        if (isApproval) {
+          if (window.currentPlan) {
+            window.acceptCurrentPlan();
+            return;
+          }
+          if (isGoalActive) {
+            window.saveGoalAndProceed();
+            return;
+          }
+        }
+
+        // If user says "reject" / "change" while plan is proposed
+        if (isRejection && window.currentPlan) {
+          window.rejectCurrentPlan();
           return;
         }
 
@@ -2401,6 +2743,7 @@ gi<!DOCTYPE html>
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              userMessage: val,
               message: val,
               projectSummary: projectData.name,
               projectState: { name: projectData.name, baseUrl: projectData.baseUrl }
@@ -2410,32 +2753,52 @@ gi<!DOCTYPE html>
           if (res.ok) {
             const data = await res.json();
             const replyText = data.reply || "I've reviewed your request.";
-            let recTools = planAction?.recommendedTools;
+            const planAction = (data.action && data.action.name === 'propose_plan') ? data.action.arguments : null;
+
+            let recTools = planAction ? planAction.recommendedTools : null;
             if (typeof recTools === 'string') {
               recTools = recTools.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
               if (recTools.length <= 1) recTools = planAction.recommendedTools.split(/\s+/).filter(Boolean);
             }
+
             if (!Array.isArray(recTools) || recTools.length === 0) {
-              recTools = ['get_company_profile', 'list_employees', 'get_employee_details', 'search_departments'];
+              const isEmployee = /company|employee|staff|team|hr|worker/i.test(val);
+              const isStore = /store|order|shop|product|cart|ecommerce/i.test(val);
+              const isCrm = /crm|contact|lead|customer|client/i.test(val);
+              if (isEmployee) {
+                recTools = ['get_company_profile', 'list_employees', 'get_employee_details', 'search_departments'];
+              } else if (isStore) {
+                recTools = ['list_products', 'get_order_details', 'list_customer_orders', 'get_store_inventory'];
+              } else if (isCrm) {
+                recTools = ['search_contacts', 'get_contact_details', 'list_active_deals', 'get_account_summary'];
+              } else {
+                recTools = ['search_records', 'get_record_by_id', 'list_recent_activity'];
+              }
             }
-            const summary = planAction?.summary || val;
 
-            const toolChipsHtml = recTools.map(t =>
-              `<span style="background:rgba(250,204,21,0.15); color:var(--y); border:1px solid var(--line-strong); padding:3px 8px; border-radius:999px; font-family:ui-monospace,monospace; font-size:10.5px; font-weight:600;">⚡ ${escapeHtml(t)}</span>`
-            ).join('');
+            const formattedTools = recTools.map(t => {
+              const tName = typeof t === 'string' ? t : (t.name || 'tool');
+              const tDesc = (typeof t === 'object' && t.desc) ? t.desc : getToolDescription(tName);
+              return { name: tName, desc: tDesc, readOnly: true, enabled: true };
+            });
 
-            const cardHtml =
-              `<div style="line-height:1.45;">` +
-                `<div>${escapeHtml(replyText)}</div>` +
-                `<div style="margin-top:10px; padding:12px; background:rgba(255,255,255,0.04); border:1px solid var(--line-strong); border-radius:10px;">` +
-                  `<div style="font-size:11px; font-weight:700; color:var(--y); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">💡 Recommended MCP Plan: ${escapeHtml(summary)}</div>` +
-                  `<div style="font-size:11px; color:var(--dim); margin-bottom:8px;">I will configure these safe, read-only tools for Claude &amp; ChatGPT:</div>` +
-                  `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">${toolChipsHtml}</div>` +
-                  `<button type="button" class="btn btn-primary" style="width:100%; height:34px; font-size:11.5px; font-weight:600;" onclick="saveGoalAndProceed()">✓ Looks Good — Proceed to Connect Data &rarr;</button>` +
-                  `<div style="font-size:10px; color:var(--dim); text-align:center; margin-top:6px;">Or reply "ok" in chat to proceed</div>` +
-                `</div>` +
-              `</div>`;
+            const summary = (planAction && planAction.summary) ? planAction.summary : val;
 
+            const isEmployeeVal = /company|employee|staff|team|hr/i.test(val);
+            let explanation = replyText;
+            if (!explanation || explanation.length < 25) {
+              explanation = isEmployeeVal
+                ? "An MCP (Model Context Protocol) server acts as a safe bridge between Claude and your company directory. Claude can answer questions like 'Who is the lead engineer?' or 'List everyone in marketing' using the safe read tools below."
+                : "An MCP server provides a standardized, safe protocol bridge between Claude and your API endpoints, letting AI assist your team without direct database access.";
+            }
+
+            window.currentPlan = {
+              summary: summary,
+              explanation: explanation,
+              tools: formattedTools
+            };
+
+            const cardHtml = buildAntigravityPlanCardHtml(window.currentPlan);
             appendChatBubble(cardHtml, 'assistant', true);
           } else {
             appendDefaultPlanBubble(val);
@@ -2446,31 +2809,46 @@ gi<!DOCTYPE html>
       };
 
       function appendDefaultPlanBubble(val) {
-        const isEmployee = /company|employee|staff|team|hr/i.test(val);
-        const tools = isEmployee
-          ? ['get_company_profile', 'list_employees', 'get_employee_details', 'search_departments']
-          : ['search_records', 'get_details_by_id', 'list_recent_items'];
+        const isEmployee = /company|employee|staff|team|hr|worker/i.test(val);
+        const isStore = /store|order|shop|product|cart|ecommerce/i.test(val);
+        const isCrm = /crm|contact|lead|customer|client/i.test(val);
 
-        const toolChipsHtml = tools.map(t =>
-          `<span style="background:rgba(250,204,21,0.15); color:var(--y); border:1px solid var(--line-strong); padding:3px 8px; border-radius:999px; font-family:ui-monospace,monospace; font-size:10.5px; font-weight:600;">⚡ ${escapeHtml(t)}</span>`
-        ).join('');
+        let tools = [];
+        let summary = val;
+        let explanation = "";
 
-        const explanation = isEmployee
-          ? `An MCP (Model Context Protocol) server acts as a safe bridge between Claude and your company's directory. Claude will be able to answer natural queries like "Who is the engineering lead?" or "Show all employees in Marketing" without manual lookups.`
-          : `An MCP server bridges your API so Claude or ChatGPT can query data and assist your team in real time.`;
+        if (isEmployee) {
+          summary = "Staff & Company Directory MCP";
+          tools = ['get_company_profile', 'list_employees', 'get_employee_details', 'search_departments'];
+          explanation = "An MCP server acts as a safe bridge between Claude and your company directory. Claude will be able to answer natural queries like 'Who is the engineering lead?' or 'Show all staff in Marketing' using safe read operations.";
+        } else if (isStore) {
+          summary = "Store & Order Management MCP";
+          tools = ['list_products', 'get_order_details', 'list_customer_orders', 'get_store_inventory'];
+          explanation = "An MCP server enables Claude to search products, look up customer orders, and check inventory in real time without allowing unauthorized financial mutations.";
+        } else if (isCrm) {
+          summary = "CRM & Customer Contacts MCP";
+          tools = ['search_contacts', 'get_contact_details', 'list_active_deals', 'get_account_summary'];
+          explanation = "An MCP server connects Claude to your CRM leads and accounts, enabling instant client history lookups while keeping mutations strictly locked.";
+        } else {
+          summary = val.length > 40 ? val.slice(0, 37) + '...' : val;
+          tools = ['search_records', 'get_record_by_id', 'list_recent_activity'];
+          explanation = "An MCP server bridges your API so Claude or ChatGPT can query data and assist your team in real time.";
+        }
 
-        const cardHtml =
-          `<div style="line-height:1.45;">` +
-            `<div>${escapeHtml(explanation)}</div>` +
-            `<div style="margin-top:10px; padding:12px; background:rgba(255,255,255,0.04); border:1px solid var(--line-strong); border-radius:10px;">` +
-              `<div style="font-size:11px; font-weight:700; color:var(--y); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">💡 Recommended MCP Tools</div>` +
-              `<div style="font-size:11px; color:var(--dim); margin-bottom:8px;">Proposed tools for "${escapeHtml(val)}":</div>` +
-              `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">${toolChipsHtml}</div>` +
-              `<button type="button" class="btn btn-primary" style="width:100%; height:34px; font-size:11.5px; font-weight:600;" onclick="saveGoalAndProceed()">✓ Looks Good — Proceed to Connect Data &rarr;</button>` +
-              `<div style="font-size:10px; color:var(--dim); text-align:center; margin-top:6px;">Or reply "ok" in chat to proceed</div>` +
-            `</div>` +
-          `</div>`;
+        const formattedTools = tools.map(t => ({
+          name: t,
+          desc: getToolDescription(t),
+          readOnly: true,
+          enabled: true
+        }));
 
+        window.currentPlan = {
+          summary: summary,
+          explanation: explanation,
+          tools: formattedTools
+        };
+
+        const cardHtml = buildAntigravityPlanCardHtml(window.currentPlan);
         appendChatBubble(cardHtml, 'assistant', true);
       }
 
