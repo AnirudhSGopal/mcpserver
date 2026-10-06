@@ -1992,13 +1992,17 @@ gi<!DOCTYPE html>
           .replace(/'/g, '&#039;');
       }
 
-      function appendChatBubble(msg, sender) {
+      function appendChatBubble(msg, sender, isHtml) {
         sender = sender || 'assistant';
         const box = document.getElementById('chatMessages');
         if (!box) return;
         const b = document.createElement('div');
         b.className = 'chat-bubble ' + sender;
-        b.innerHTML = '<div>' + escapeHtml(msg) + '</div>';
+        if (isHtml || (typeof msg === 'string' && msg.trim().startsWith('<'))) {
+          b.innerHTML = msg;
+        } else {
+          b.innerHTML = '<div>' + escapeHtml(msg) + '</div>';
+        }
         box.appendChild(b);
         box.scrollTop = box.scrollHeight;
       }
@@ -2370,27 +2374,105 @@ gi<!DOCTYPE html>
 
         appendChatBubble(val, 'user');
 
-        if (currentMilestoneId === 'goal') {
+        const isApproval = /^(ok|okay|yes|proceed|looks good|confirm|sure|continue|approve)\b/i.test(val);
+        const isGoalActive = (activeWaypointIndex <= 1);
+
+        // If user says "ok" / "proceed" when reviewing goal, automatically advance!
+        if (isApproval && isGoalActive) {
+          appendChatBubble(
+            `<div><b>✓ Plan Approved!</b> Advancing to Step 2: Connect Data Source.</div>`,
+            'assistant'
+          );
+          saveGoalAndProceed();
+          return;
+        }
+
+        // Update goal definition in UI to match user's chat input
+        if (isGoalActive && val.length > 5) {
           projectData.name = val;
-          renderMilestoneCardsInChat();
+          const gInput = document.getElementById('goalInput');
+          if (gInput) gInput.value = val;
+          const apVal = document.querySelector('.active-purpose-val');
+          if (apVal) apVal.textContent = val;
         }
 
         try {
-          const res = await fetch('/projects/invoiceapp/assistant/chat', {
+          const res = await fetch('/api/assistant/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: val })
+            body: JSON.stringify({
+              message: val,
+              projectSummary: projectData.name,
+              projectState: { name: projectData.name, baseUrl: projectData.baseUrl }
+            })
           });
+
           if (res.ok) {
             const data = await res.json();
-            if (data.reply) appendChatBubble(data.reply, 'assistant');
+            const replyText = data.reply || "I've reviewed your request.";
+            let recTools = planAction?.recommendedTools;
+            if (typeof recTools === 'string') {
+              recTools = recTools.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+              if (recTools.length <= 1) recTools = planAction.recommendedTools.split(/\s+/).filter(Boolean);
+            }
+            if (!Array.isArray(recTools) || recTools.length === 0) {
+              recTools = ['get_company_profile', 'list_employees', 'get_employee_details', 'search_departments'];
+            }
+            const summary = planAction?.summary || val;
+
+            const toolChipsHtml = recTools.map(t =>
+              `<span style="background:rgba(250,204,21,0.15); color:var(--y); border:1px solid var(--line-strong); padding:3px 8px; border-radius:999px; font-family:ui-monospace,monospace; font-size:10.5px; font-weight:600;">⚡ ${escapeHtml(t)}</span>`
+            ).join('');
+
+            const cardHtml =
+              `<div style="line-height:1.45;">` +
+                `<div>${escapeHtml(replyText)}</div>` +
+                `<div style="margin-top:10px; padding:12px; background:rgba(255,255,255,0.04); border:1px solid var(--line-strong); border-radius:10px;">` +
+                  `<div style="font-size:11px; font-weight:700; color:var(--y); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">💡 Recommended MCP Plan: ${escapeHtml(summary)}</div>` +
+                  `<div style="font-size:11px; color:var(--dim); margin-bottom:8px;">I will configure these safe, read-only tools for Claude &amp; ChatGPT:</div>` +
+                  `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">${toolChipsHtml}</div>` +
+                  `<button type="button" class="btn btn-primary" style="width:100%; height:34px; font-size:11.5px; font-weight:600;" onclick="saveGoalAndProceed()">✓ Looks Good — Proceed to Connect Data &rarr;</button>` +
+                  `<div style="font-size:10px; color:var(--dim); text-align:center; margin-top:6px;">Or reply "ok" in chat to proceed</div>` +
+                `</div>` +
+              `</div>`;
+
+            appendChatBubble(cardHtml, 'assistant', true);
           } else {
-            appendChatBubble('I have updated the blueprint accordingly.', 'assistant');
+            appendDefaultPlanBubble(val);
           }
         } catch (_) {
-          appendChatBubble('I am tracking your instructions and synchronizing the Build Map.', 'assistant');
+          appendDefaultPlanBubble(val);
         }
       };
+
+      function appendDefaultPlanBubble(val) {
+        const isEmployee = /company|employee|staff|team|hr/i.test(val);
+        const tools = isEmployee
+          ? ['get_company_profile', 'list_employees', 'get_employee_details', 'search_departments']
+          : ['search_records', 'get_details_by_id', 'list_recent_items'];
+
+        const toolChipsHtml = tools.map(t =>
+          `<span style="background:rgba(250,204,21,0.15); color:var(--y); border:1px solid var(--line-strong); padding:3px 8px; border-radius:999px; font-family:ui-monospace,monospace; font-size:10.5px; font-weight:600;">⚡ ${escapeHtml(t)}</span>`
+        ).join('');
+
+        const explanation = isEmployee
+          ? `An MCP (Model Context Protocol) server acts as a safe bridge between Claude and your company's directory. Claude will be able to answer natural queries like "Who is the engineering lead?" or "Show all employees in Marketing" without manual lookups.`
+          : `An MCP server bridges your API so Claude or ChatGPT can query data and assist your team in real time.`;
+
+        const cardHtml =
+          `<div style="line-height:1.45;">` +
+            `<div>${escapeHtml(explanation)}</div>` +
+            `<div style="margin-top:10px; padding:12px; background:rgba(255,255,255,0.04); border:1px solid var(--line-strong); border-radius:10px;">` +
+              `<div style="font-size:11px; font-weight:700; color:var(--y); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">💡 Recommended MCP Tools</div>` +
+              `<div style="font-size:11px; color:var(--dim); margin-bottom:8px;">Proposed tools for "${escapeHtml(val)}":</div>` +
+              `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">${toolChipsHtml}</div>` +
+              `<button type="button" class="btn btn-primary" style="width:100%; height:34px; font-size:11.5px; font-weight:600;" onclick="saveGoalAndProceed()">✓ Looks Good — Proceed to Connect Data &rarr;</button>` +
+              `<div style="font-size:10px; color:var(--dim); text-align:center; margin-top:6px;">Or reply "ok" in chat to proceed</div>` +
+            `</div>` +
+          `</div>`;
+
+        appendChatBubble(cardHtml, 'assistant', true);
+      }
 
       window.toggleTheme = function() {
         const html = document.documentElement;

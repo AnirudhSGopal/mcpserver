@@ -390,14 +390,15 @@ export function createMcpHttpServer(
     }
 
     // API: Assistant Chat (Real LLM, structured project state, server-side guardrails)
-    if (url.pathname === '/api/assistant/chat' && req.method === 'POST') {
+    if ((url.pathname === '/api/assistant/chat' || /^\/projects\/[a-zA-Z0-9_-]+\/assistant\/chat$/.test(url.pathname)) && req.method === 'POST') {
       let bodyStr = '';
       req.on('data', (c) => (bodyStr += c));
       req.on('end', async () => {
         try {
           const body = JSON.parse(bodyStr || '{}');
+          const userMessage = body.userMessage || body.message || '';
           const result = await processAssistantTurn({
-            userMessage: body.userMessage || '',
+            userMessage,
             projectSummary: body.projectSummary || '',
             projectState: body.projectState || {}
           });

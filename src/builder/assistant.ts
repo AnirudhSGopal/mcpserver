@@ -112,13 +112,22 @@ export async function processAssistantTurn(params: AssistantTurnParams): Promise
   // 1. Guardrail: Reject credentials in chat
   validateChatForCredentials(params.userMessage);
 
-  const systemPrompt = `You are a helpful AI Builder Assistant for non-technical business owners.
-You help them connect their business data to AI assistants.
-You speak in clear, plain sentence-case English (no technical jargon like OpenAPI, JSON-RPC, or slug).
+  const systemPrompt = `You are MCPForge's AI Builder Assistant. You help users build custom MCP (Model Context Protocol) servers that securely connect their business systems and data to AI assistants like Claude and ChatGPT.
+
+CORE INTERACTION PATTERN:
+1. When a user states what they want to build (e.g. "I need an MCP for company details and employee data" or mentions invoices, orders, crm, etc.):
+   - Explain briefly (1-2 sentences) how this MCP server will help them (e.g. "An MCP server acts as a secure bridge so Claude can query company records and look up employee details in natural language.").
+   - Recommend a clean, safe set of 3-4 tools tailored to their request.
+   - Always call the propose_plan function with:
+     { "summary": "<Concise Goal Name>", "recommendedTools": ["tool_1", "tool_2", "tool_3"] }
+   - Tell the user: "If this plan looks good to you, click 'Proceed' or reply 'ok' to move to Step 2: Connect Data."
+
+2. When the user agrees ("ok", "proceed", "yes", "sounds good", "continue"):
+   - Acknowledge their approval and confirm we are moving to Step 2 (Connect Data Source).
 
 Your available abilities (function calls):
+- propose_plan: { "summary": "...", "recommendedTools": ["tool1", "tool2"] }
 - ask_clarifying_question: { "question": "..." }
-- propose_plan: { "summary": "...", "recommendedTools": ["tool1"] }
 - start_design: { "requirement": "..." }
 - run_tests: {}
 - apply_fix: { "toolName": "...", "field": "description", "value": "..." }
@@ -132,7 +141,7 @@ CRITICAL GUARDRAILS (Server enforced):
 
 Output JSON with this schema:
 {
-  "reply": "Plain language reply to the user",
+  "reply": "Plain language explanation and recommendation to the user",
   "action": { "name": "<function_name>", "arguments": { ... } } (optional),
   "updatedProjectSummary": "1-2 sentence rolling summary of the project state"
 }`;
@@ -174,13 +183,35 @@ Respond in JSON format.`;
         });
       }
 
+      if (lower.includes('ok') || lower.includes('proceed') || lower.includes('yes') || lower.includes('confirm')) {
+        return JSON.stringify({
+          reply: 'Great! Moving forward to Step 2: Connect Data Source. Please verify your base API URL and schema.',
+          action: { name: 'start_design', arguments: { requirement: params.projectSummary || 'Connect data' } },
+          updatedProjectSummary: 'User confirmed plan. Advanced to Connect Data milestone.'
+        });
+      }
+
+      if (lower.includes('company') || lower.includes('employee')) {
+        return JSON.stringify({
+          reply: `An MCP (Model Context Protocol) server will securely connect Claude to your company's records so you can ask natural questions like "Who reports to the Head of Engineering?" or "Find Jane's contact details". I recommend starting with safe read tools for company profile, staff directory, and department lookups.`,
+          action: {
+            name: 'propose_plan',
+            arguments: {
+              summary: 'Company & Employee Records MCP',
+              recommendedTools: ['get_company_profile', 'list_employees', 'get_employee_details', 'search_departments']
+            }
+          },
+          updatedProjectSummary: 'Goal set to Company & Employee Records MCP.'
+        });
+      }
+
       return JSON.stringify({
-        reply: `I understand your goal is: "${params.userMessage}". Let's set up your data connection.`,
+        reply: `An MCP (Model Context Protocol) server lets your AI assistant interact safely with your system. For "${params.userMessage}", I recommend setting up read tools to query and inspect this data. If this plan looks good to you, click "Proceed" or reply "ok" to move to Connect Data.`,
         action: {
           name: 'propose_plan',
           arguments: {
-            summary: `Configure actions for ${params.userMessage}`,
-            recommendedTools: ['list_items', 'get_item']
+            summary: `MCP for ${params.userMessage}`,
+            recommendedTools: ['list_items', 'get_item_details', 'search_records']
           }
         },
         updatedProjectSummary: `User goal set to ${params.userMessage}.`
