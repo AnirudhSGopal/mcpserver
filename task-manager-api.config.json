@@ -1,0 +1,389 @@
+{
+  "name": "task-manager-api",
+  "version": "1.0.0",
+  "description": "A task management REST API for teams. It supports:",
+  "inbound_auth": {
+    "type": "api_key",
+    "key_header": "X-API-Key"
+  },
+  "sources": [
+    {
+      "type": "openapi",
+      "id": "main_api",
+      "base_url": "https://api.taskmanager.io",
+      "allowed_hosts": [
+        "api.taskmanager.io"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "list_tasks",
+      "description": "Retrieve a list of all tasks. Optionally filter tasks by their status, assignee, or due date.",
+      "enabled": true,
+      "mode": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Filter tasks by their current status.",
+            "enum": [
+              "open",
+              "in-progress",
+              "done",
+              "blocked"
+            ]
+          },
+          "assignee_id": {
+            "type": "string",
+            "description": "Filter tasks assigned to a specific team member ID."
+          },
+          "due_date_before": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Filter tasks that are due before a specific date and time."
+          }
+        }
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "GET",
+            "path": "/tasks",
+            "query": {
+              "status": "{{input.status}}",
+              "assigneeId": "{{input.assignee_id}}",
+              "dueDateBefore": "{{input.due_date_before}}"
+            },
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_task_details",
+      "description": "Retrieve the full details of a specific task using its unique identifier. This includes its title, description, status, priority, and any associated comments.",
+      "enabled": true,
+      "mode": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The unique identifier of the task to retrieve.",
+            "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+          }
+        },
+        "required": [
+          "task_id"
+        ]
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "GET",
+            "path": "/tasks/{{input.task_id}}",
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_task",
+      "description": "Create a new task with essential details. Specify a title, optional description, assignee, due date, and priority level.",
+      "enabled": false,
+      "mode": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the new task.",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "A detailed description of the task."
+          },
+          "assignee_id": {
+            "type": "string",
+            "description": "The ID of the team member to whom the task is assigned."
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the task is due."
+          },
+          "priority": {
+            "type": "string",
+            "description": "The priority level of the task.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "urgent"
+            ]
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "POST",
+            "path": "/tasks",
+            "body": {
+              "type": "json",
+              "json": {
+                "title": "{{input.title}}",
+                "description": "{{input.description}}",
+                "assigneeId": "{{input.assignee_id}}",
+                "dueDate": "{{input.due_date}}",
+                "priority": "{{input.priority}}"
+              }
+            },
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "update_task_status",
+      "description": "Modify the current status of an existing task. Valid statuses include 'open', 'in-progress', 'done', and 'blocked'.",
+      "enabled": false,
+      "mode": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The unique identifier of the task to update.",
+            "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+          },
+          "status": {
+            "type": "string",
+            "description": "The new status for the task.",
+            "enum": [
+              "open",
+              "in-progress",
+              "done",
+              "blocked"
+            ]
+          }
+        },
+        "required": [
+          "task_id",
+          "status"
+        ]
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "PATCH",
+            "path": "/tasks/{{input.task_id}}",
+            "body": {
+              "type": "json",
+              "json": {
+                "status": "{{input.status}}"
+              }
+            },
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "assign_task",
+      "description": "Assign an existing task to a specific team member or reassign it to a different one. This updates the task's assignee.",
+      "enabled": false,
+      "mode": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The unique identifier of the task to assign.",
+            "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+          },
+          "assignee_id": {
+            "type": "string",
+            "description": "The ID of the team member to assign the task to."
+          }
+        },
+        "required": [
+          "task_id",
+          "assignee_id"
+        ]
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "PATCH",
+            "path": "/tasks/{{input.task_id}}",
+            "body": {
+              "type": "json",
+              "json": {
+                "assigneeId": "{{input.assignee_id}}"
+              }
+            },
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "add_task_comment",
+      "description": "Add a new comment to an existing task. This allows team members to provide updates or additional context.",
+      "enabled": false,
+      "mode": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The unique identifier of the task to add a comment to.",
+            "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+          },
+          "comment_text": {
+            "type": "string",
+            "description": "The content of the comment to add.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "task_id",
+          "comment_text"
+        ]
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "POST",
+            "path": "/tasks/{{input.task_id}}/comments",
+            "body": {
+              "type": "json",
+              "json": {
+                "text": "{{input.comment_text}}"
+              }
+            },
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "list_team_members",
+      "description": "Retrieve a list of all available team members. This list can be used to identify potential assignees for tasks.",
+      "enabled": true,
+      "mode": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "GET",
+            "path": "/members",
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_task_statistics",
+      "description": "Fetch various statistics related to tasks, such as the count of tasks by status (e.g., open, done) and the total number of overdue tasks.",
+      "enabled": true,
+      "mode": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "GET",
+            "path": "/tasks/statistics",
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_task",
+      "description": "Permanently delete a task from the system. This is a destructive operation and is typically restricted to users with manager privileges.",
+      "enabled": false,
+      "mode": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The unique identifier of the task to delete.",
+            "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+          }
+        },
+        "required": [
+          "task_id"
+        ]
+      },
+      "executor": {
+        "type": "http",
+        "source_id": "main_api",
+        "steps": [
+          {
+            "method": "DELETE",
+            "path": "/tasks/{{input.task_id}}",
+            "response_shaping": {
+              "max_items": 20,
+              "max_bytes": 50000
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
